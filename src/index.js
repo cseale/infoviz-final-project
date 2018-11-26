@@ -1,15 +1,10 @@
-
-
-import d3 from 'd3';
-import 'topojson';
-
 // bootstrap
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import Datamap from 'datamaps';
+// britecharta
+import 'britecharts/dist/css/britecharts.css'
 
-
-var map = new Datamap({
-    element: document.getElementById('map'),
-});
+// maps
+import './map';
+import './linechart';
