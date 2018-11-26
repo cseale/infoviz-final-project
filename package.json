@@ -1,0 +1,22 @@
+{
+  "name": "infoviz-final-project",
+  "version": "1.0.0",
+  "description": "Data Vizualisation 2018 InfoViz Final Project",
+  "main": "index.js",
+  "scripts": {
+    "start": "./node_modules/.bin/http-server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cseale/infoviz-final-project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cseale/infoviz-final-project/issues"
+  },
+  "homepage": "https://github.com/cseale/infoviz-final-project#readme",
+  "devDependencies": {
+    "http-server": "^0.11.1"
+  }
+}
