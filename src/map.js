@@ -8,17 +8,20 @@ isoCountries.registerLocale(require("i18n-iso-countries/langs/en.json"));
 
 d3.tip = d3Tip;
 
+var clickHandlers = [];
+
 var tip = d3.tip().attr('class', 'd3-tip').html(function(d) { return 'My Tooltip'; });
 
-var width = 960,
-    height = 580;
+var width = 1000,
+    height = 700;
 
 var color = d3.scaleThreshold()
     .domain([10000, 100000, 500000, 1000000, 5000000, 10000000, 50000000, 100000000, 500000000, 1500000000])
     .range(["rgb(247,251,255)", "rgb(222,235,247)", "rgb(198,219,239)", "rgb(158,202,225)", "rgb(107,174,214)", "rgb(66,146,198)", "rgb(33,113,181)", "rgb(8,81,156)", "rgb(8,48,107)", "rgb(3,19,43)"]);
 
-var projection = d3GeoProjection.geoPatterson()
-    .scale(170)
+var projection = d3GeoProjection.geoMiller()
+    .scale(160)
+    .translate([width / 2, height / 2])
     .precision(.1);
 
 var path = d3.geoPath()
@@ -46,10 +49,7 @@ svg.append('use')
     .attr('class', 'fill')
     .attr('xlink:href', '#sphere');
 
-svg.append('path')
-    .datum(graticule)
-    .attr('class', 'graticule')
-    .attr('d', path);
+
 
 //data
 //https://github.com/zcreativelabs/react-simple-maps/blob/master/topojson-maps/world-50m.json
@@ -82,6 +82,9 @@ function ready([world, flowData]) {
         .style("opacity",0.8)
         .style("stroke","white")
         .style('stroke-width', 0.3)
+        .on('click', function(d) {
+            update(d);
+        })
         .on('mouseover', function (d) {
             tip.show(d, this);
 
@@ -96,6 +99,11 @@ function ready([world, flowData]) {
                 .style("stroke", "white")
                 .style("stroke-width", 0.3);
         });
+}
+
+function update(data) {
+    svg.selectAll('.country')
+    .style("fill", function (d) { return color(1500000000) })
 }
 
 
@@ -114,4 +122,23 @@ function getFlow(flows, isoCode) {
     const results = flows.filter(f => f.isoCode === isoCode);
     console.log(isoCode, results.length)
     return results[0];
+}
+
+
+// update map data
+export function updateMap(data) {
+    update(data);
+}
+
+// add click handler
+export function registerMapClickHandler(onClick) {
+    clickHandlers.push(onClick);
+}
+
+// remove click handler
+export function deregisterMapClickHandler(onClick) {
+    var index = clickHandlers.indexOf(onClick);
+    if (index > -1) {
+        clickHandlers.splice(index, 1);
+    }
 }

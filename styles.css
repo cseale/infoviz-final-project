@@ -3,6 +3,7 @@ body {
   }
   
   .navbar-brand {
+    min-width: 200px;
     max-width: 200px;
   }
 
@@ -17,7 +18,8 @@ body {
    */
   
   .sidebar {
-    width: 200px;
+    min-width: 200px;
+    max-width: 200px;
     position: fixed;
     top: 0;
     bottom: 0;
@@ -72,7 +74,9 @@ body {
    */
   
   [role="main"] {
-    padding-top: 48px; /* Space for fixed navbar */
+    padding-top: 48px;
+    margin-left: 200px;
+    padding-left: 48px;
   }
   
   /*
@@ -103,12 +107,6 @@ body {
     border-color: transparent;
     box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
   }
-
-
-#map {
-    height: 600px;
-    position: relative;
-}
 
 body {
   background: #fcfcfa;
