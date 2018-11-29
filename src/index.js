@@ -7,4 +7,6 @@ import 'britecharts/dist/css/britecharts.css'
 
 // maps
 import './map';
-import './linechart';
+
+
+import './controls';

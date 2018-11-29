@@ -2,6 +2,10 @@ body {
     font-size: .875rem;
   }
   
+  .navbar-brand {
+    max-width: 200px;
+  }
+
   .feather {
     width: 16px;
     height: 16px;
@@ -13,6 +17,7 @@ body {
    */
   
   .sidebar {
+    width: 200px;
     position: fixed;
     top: 0;
     bottom: 0;
