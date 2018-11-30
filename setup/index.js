@@ -78,21 +78,27 @@ for (let index in mapping) {
       .fromFile(path)
       .subscribe((json) => {
 
+        // nameToCode[json['COUNTRIES']] = json['UN numeric code'];
+
         let esPack = {};
 
         for (let esProperty in descriptor) {
           let jsonProperty = descriptor[esProperty];
           let value;
           let transform;
-          if (jsonProperty[0] === '+') {
-            jsonProperty = jsonProperty.slice(1);
-            transform = Number;
-          }
+          if (typeof jsonProperty === 'function') {
+            value = jsonProperty(json);
+          } else {
+            if (jsonProperty[0] === '+') {
+              jsonProperty = jsonProperty.slice(1);
+              transform = Number;
+            }
 
-          value = json[jsonProperty];
+            value = json[jsonProperty];
 
-          if (transform) {
-            value = transform(value);
+            if (transform) {
+              value = transform(value);
+            }
           }
 
           esPack[esProperty] = value;
@@ -109,6 +115,7 @@ for (let index in mapping) {
         throw e;
       }, () => {
         console.log('Index ' + index + ' completed.');
+        // console.log(JSON.stringify(nameToCode));
       });
   });
 }
