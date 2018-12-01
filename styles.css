@@ -141,3 +141,7 @@ body {
   -moz-border-radius:10px;
   border-radius:10px;
 }
+
+.bootstrap-select {
+  width: 170px !important;
+}

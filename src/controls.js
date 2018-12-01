@@ -1,6 +1,16 @@
-// NELE TODO
-// 1. Create dropdown for different factors.
+import { updateMap } from './map';
 
-// 2. Create Slider for different ranges from 1945 to 2011
+const select = document.getElementById('countrySelect');
 
-// 3. Create dropdown that allows you to select a country from a list
+const max = 100;
+
+for (let i = 1; i <= max; i += 1) {
+  const opt = document.createElement('option');
+  opt.value = i;
+  opt.innerHTML = `Country, ${i}!`;
+  select.appendChild(opt);
+}
+
+select.onchange = (value) => {
+  updateMap(value);
+};
