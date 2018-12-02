@@ -8,26 +8,109 @@ const csv = require('csvtojson');
 let tasks = [];
 let nameToCode = require('../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/nameToCode');
 
-function loadFromObj(obj, name) {
-  return function (row) {
-    return obj[row[name]];
+const { byCC, byName, byId3 } = require('../res/codes.js');
+
+function loadFromObj(obj, property, transform) {
+  return function (e) {
+    let ret = obj[e];
+    if (!ret) {
+      // console.error('Undefined value for ' + e);
+      return;
+    }
+    ret = property ? ret[property] : ret;
+    if (transform) {
+      ret = transform(ret);
+    }
+
+    return ret;
   };
+}
+
+function loadFromDoubleObj(obj1, obj2, property) {
+  return function (e) {
+    let ret = obj1[obj2[e]];
+    if (!ret) {
+      // console.error('Undefined value for ' + e);
+      return;
+    }
+    return property ? ret[property] : ret;
+  };
+}
+
+function trim(s) {
+  return s.trim();
 }
 
 const mapping = {
   migration: {
     descriptor: {
       reportingCountryName: 'Reporting country',
-      reportingCountryId: loadFromObj(nameToCode, 'Reporting country'),
+      reportingCountryCC: {
+        transform: [trim, loadFromObj(byName, 'cc')],
+        name: 'Reporting country'
+      },
+      reportingCountryId: {
+        transform: [trim, loadFromDoubleObj(byCC, nameToCode, 'id')],
+        name: 'Reporting country',
+        mapping: { type: 'keyword' }
+      },
       sourceCountryName: 'COUNTRIES',
-      sourceCountryId: 'UN numeric code',
+      sourceCountryCC: { name: 'UN numeric code' },
+      sourceCountryId: {
+        transform: loadFromObj(byCC, 'id'),
+        name: 'UN numeric code',
+        mapping: { type: 'keyword' }
+      },
       coverage: 'Coverage -Citizens/Foreigners/Both-',
       gender: 'Gender',
-      year: '+Year',
-      value: '+Value'
+      year: {
+        transform: Number,
+        name: 'Year'
+      },
+      value: {
+        transform: Number,
+        name: 'Value'
+      }
     },
     path: '../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/DEMIG-C2C-Migration-Outflow.csv'
-  }
+  },
+  big_mac: {
+    descriptor: {
+      year: {
+        transform: function (y) {
+          return new Date(y).getFullYear();
+        },
+        name: 'date'
+      },
+      value: {
+        name: 'adj_price',
+        transform : Number,
+        mapping: {
+          type: 'float'
+        }
+      },
+      countryId : {
+        transform: loadFromObj(byId3, 'id'),
+        name: 'iso_a3',
+        mapping: {
+          type: 'keyword'
+        }
+      },
+      countryCC : {
+        transform: loadFromObj(byId3, 'cc'),
+        name: 'iso_a3',
+      },
+      countryName : {
+        transform: loadFromObj(byId3, 'name'),
+        name: 'iso_a3',
+        mapping: {
+          type: 'keyword'
+        }
+      }
+    },
+    path: '../datasets/Big Mac Index 2011-2018/big-mac-adjusted-index.csv'
+  },
+
 };
 
 /**
@@ -45,17 +128,21 @@ for (let index in mapping) {
 
   let properties = {};
 
-  for (let esProperty in descriptor) {
+  for (let esPropertyName in descriptor) {
     let mapping;
-    if (esProperty[0] === '+') {
-      mapping = { 'type': 'integer' };
-    } else {
+    let value = descriptor[esPropertyName];
+    if (typeof value === 'string') {
       mapping = { 'type': 'keyword' };
+    } else {
+      mapping = value.mapping;
+
+      if (!mapping) {
+        mapping = { 'type': 'integer' };
+      }
     }
 
-    properties[esProperty] = mapping;
+    properties[esPropertyName] = mapping;
   }
-
 
   client.indices.create({
     index,
@@ -82,26 +169,26 @@ for (let index in mapping) {
 
         let esPack = {};
 
-        for (let esProperty in descriptor) {
-          let jsonProperty = descriptor[esProperty];
-          let value;
-          let transform;
-          if (typeof jsonProperty === 'function') {
-            value = jsonProperty(json);
+        for (let esPropertyName in descriptor) {
+          let value = descriptor[esPropertyName];
+          let ret;
+          if (typeof value === 'string') {
+            ret = json[value];
           } else {
-            if (jsonProperty[0] === '+') {
-              jsonProperty = jsonProperty.slice(1);
-              transform = Number;
-            }
-
-            value = json[jsonProperty];
-
+            let { transform, name } = value;
+            ret = json[name];
             if (transform) {
-              value = transform(value);
+              if (Array.isArray(transform)) {
+                for (let tr of transform) {
+                  ret = tr(ret);
+                }
+              } else {
+                ret = transform(ret);
+              }
             }
           }
 
-          esPack[esProperty] = value;
+          esPack[esPropertyName] = ret;
         }
 
         tasks.push({
@@ -123,7 +210,7 @@ for (let index in mapping) {
 let times = 0;
 
 setTimeout(() => {
-  for (var i = 0; i < 50; i++) {
+  for (var i = 0; i < 10; i++) {
     bulkThread();
   }
 }, 1000);
@@ -132,6 +219,7 @@ function bulkThread() {
   let body = tasks.slice(0, 300);
   if (body.length) {
     times = 0;
+    // console.log(body);
     client.bulk({ body }, function (err, response) {
       if (err) {
         console.error(err);
@@ -141,6 +229,7 @@ function bulkThread() {
 
     });
   } else {
+    console.log('Nope');
     if (times++ < 30) {
       setTimeout(bulkThread, 1000);
     }
