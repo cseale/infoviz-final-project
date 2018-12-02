@@ -71,10 +71,24 @@
                     </li>
                     <li class="nav-item">
                         <div class="nav-link">
-                            <select class="selectpicker" id="factorSelect">
-                                <option value="Equality">Equality</option>
-                                <option value="Crime">Crime</option>
-                            </select>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    Equality
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    Crime
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                                <label class="form-check-label" for="defaultCheck1">
+                                    Water Supply
+                                </label>
+                            </div>
                         </div>
                     </li>
                 </ul>
@@ -95,7 +109,7 @@
                         <div class="pt-3 pb-2 mb-3 border-bottom">
                             <h1 class="h2">What is the overall trend over time?</h1>
                         </div>
-                        <div id="brush"></div> 
+                        <div id="line" style="width:800px; height:300px;"></div>
                         <div class="pt-3 pb-2 mb-3 border-bottom">
                             <h1 class="h2">What is migration population breakdown?</h1>
                         </div>

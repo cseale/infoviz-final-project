@@ -6,7 +6,7 @@ const FACTOR_SELECT_ID = 'factorSelect';
 const onUpdateHandlers = [];
 
 function listenForOnUpdateEvents() {
-  [COUNTRY_SELECT_ID, MEASURE_SELECT_ID, FACTOR_SELECT_ID].forEach((id) => {
+  [COUNTRY_SELECT_ID, MEASURE_SELECT_ID].forEach((id) => {
     const select = document.getElementById(id);
     select.onchange = (value) => {
       console.log(`value updated ${value.target.value}`);

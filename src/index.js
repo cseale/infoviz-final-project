@@ -8,6 +8,7 @@ import 'bootstrap-select';
 import '../styles.css';
 
 // maps
+import './line';
 import './scatterplot';
 import './stackedbarchart';
 import './map';
