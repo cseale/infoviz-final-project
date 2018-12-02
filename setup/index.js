@@ -216,7 +216,7 @@ setTimeout(() => {
 }, 1000);
 
 function bulkThread() {
-  let body = tasks.slice(0, 300);
+  let body = tasks.splice(0, 300);
   if (body.length) {
     times = 0;
     // console.log(body);
