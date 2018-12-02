@@ -109,7 +109,15 @@ app.get('/countries', (req, res, next) => {
         }
         for (let yearBucket of countryBucket.year_join.buckets) {
           let value = yearBucket.sum.value;
-          let element = yearBucket.result.hits.hits[0]._source;
+          let elementSource = yearBucket.result.hits.hits[0]._source;
+          let element = {
+            countryId: elementSource.sourceCountryId,
+            year: elementSource.year,
+            countryName: elementSource.sourceCountryName,
+            countryCC: elementSource.sourceCountryCC,
+            value: elementSource.value,
+            associations: {},
+          };
           element.value = value;
 
           if (associations) {
@@ -117,7 +125,6 @@ app.get('/countries', (req, res, next) => {
             container.set(element.year, element);
           }
 
-          element.associations = {};
           ret.push(element);
         }
       }
@@ -153,9 +160,11 @@ app.get('/countries', (req, res, next) => {
         }
 
         for (let element of result.hits.hits) {
-          let container = elements.get(element._source.countryId).get(element._source.year);
-          if (container)
-          container.associations[element._index] = { value: element._source.value };
+          let container = elements.get(element._source.countryId)
+            .get(element._source.year);
+          if (container) {
+            container.associations[element._index] = { value: element._source.value };
+          }
         }
 
         res.send(ret);
