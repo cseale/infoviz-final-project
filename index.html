@@ -9,9 +9,6 @@
 
     <title>Migration Flow Viz</title>
 
-    <!-- Custom styles for this template -->
-    <link href="./dist/main.css" rel="stylesheet">
-    <link href="./styles.css" rel="stylesheet">
 </head>
 
 <body>
@@ -25,7 +22,7 @@
             <div class="sidebar-sticky">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">
+                        <a class="nav-link active">
                             <span data-feather="home"></span>
                             Select Country <span class="sr-only">(current)</span>
                         </a>
@@ -37,10 +34,10 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">
+                        <span class="nav-link active">
                             <span data-feather="home"></span>
                             Select Measure <span class="sr-only">(current)</span>
-                        </a>
+                        </span>
                     </li>
                     <li class="nav-item">
                         <div class="nav-link">
@@ -52,10 +49,25 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">
+                        <span class="nav-link active">
+                            <span data-feather="home"></span>
+                            Select Breakdown (Optional) <span class="sr-only">(current)</span>
+                        </span>
+                    </li>
+                    <li class="nav-item">
+                        <div class="nav-link">
+                            <select class="selectpicker" id="breakdownSelect">
+                                <option value="gender">Overall</option>
+                                <option value="gender">Gender</option>
+                                <option value="citizen">Citizenship</option>
+                            </select>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <span class="nav-link active">
                             <span data-feather="home"></span>
                             Select Factor <span class="sr-only">(current)</span>
-                        </a>
+                        </span>
                     </li>
                     <li class="nav-item">
                         <div class="nav-link">
@@ -70,30 +82,48 @@
         </nav>
 
         <main role="main">
-            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 class="h2">World Map</h1>
-            </div>
-
-            <div id="map" height="700"></div>
-
-            <div class="js-line-chart-container card--chart"></div>
-            <div id="brush">
-                <h2>Scatter Plot</h2>
-                <div id="line"></div>
-                <div id="line1"></div>
-                <!--     <div id="line1" style="height:150px; width:450px;"></div> -->
-                <div class="js-line-brush-chart-container card--chart"></div>
-                <div class="js-date-range date-range is-hidden">
-                    Selected from <span class="js-start-date"></span> to <span class="js-end-date"></span>
+            <div>
+                <div class="row">
+                    <div class="col">
+                        <div class="pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2">What countries are people migrating to/from?</h1>
+                        </div>
+                        <div id="map" style="width:1080px; height:720px;"></div>
+                        
+                    </div>
+                    <div class="col stacked-chart-container">
+                        <div class="pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2">What is the overall trend over time?</h1>
+                        </div>
+                        <div id="brush"></div> 
+                        <div class="pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2">What is migration population breakdown?</h1>
+                        </div>
+                        <div id="stackedbar" style="width:800px; height:400px;"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col scatter-chart-container">
+                        <div class="pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2">What factors are having an impact on migration flow?</h1>
+                        </div>
+                        <div class="scatter-flex">
+                            <div id="scatterplot" style="width:600px; height:400px;"></div>
+                            <div id="scatterplot2" style="width:600px; height:400px;"></div>
+                            <div id="scatterplot3" style="width:600px; height:400px;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
     </div>
 </div>
 
+
+
+
 <!-- Bootstrap core JavaScript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-<script src="./dist/main.js"></script>
 </body>
 </html>

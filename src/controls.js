@@ -1,16 +1,48 @@
-import { updateMap } from './map';
+const COUNTRY_SELECT_ID = 'countrySelect';
+const MEASURE_SELECT_ID = 'measureSelect';
+const FACTOR_SELECT_ID = 'factorSelect';
 
-const select = document.getElementById('countrySelect');
 
-const max = 100;
+const onUpdateHandlers = [];
 
-for (let i = 1; i <= max; i += 1) {
-  const opt = document.createElement('option');
-  opt.value = i;
-  opt.innerHTML = `Country, ${i}!`;
-  select.appendChild(opt);
+function listenForOnUpdateEvents() {
+  [COUNTRY_SELECT_ID, MEASURE_SELECT_ID, FACTOR_SELECT_ID].forEach((id) => {
+    const select = document.getElementById(id);
+    select.onchange = (value) => {
+      console.log(`value updated ${value.target.value}`);
+      onUpdateHandlers.forEach(handler => handler());
+    };
+  });
 }
 
-select.onchange = (value) => {
-  updateMap(value);
+function addOptions(elementID, data, htmlKey, valueKey) {
+  const select = document.getElementById(elementID);
+  data.forEach((d) => {
+    const opt = document.createElement('option');
+    opt.value = d[valueKey];
+    opt.innerHTML = `Country, ${d[htmlKey]}!`;
+    select.appendChild(opt);
+  });
+}
+
+listenForOnUpdateEvents();
+
+function registerOnUpdateEventHandlers(onUpdate) {
+  onUpdateHandlers.push(onUpdate);
+}
+
+function deregisterOnUpdateEventHandlers(onUpdate) {
+  const index = onUpdateHandlers.indexOf(onUpdate);
+  if (index > -1) {
+    onUpdateHandlers.splice(index, 1);
+  }
+}
+
+export {
+  COUNTRY_SELECT_ID,
+  MEASURE_SELECT_ID,
+  FACTOR_SELECT_ID,
+  addOptions,
+  deregisterOnUpdateEventHandlers,
+  registerOnUpdateEventHandlers,
 };
