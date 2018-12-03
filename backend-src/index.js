@@ -17,7 +17,50 @@ const client = new elasticsearch.Client({
 
 app.use(express.json());
 
+
 app.get('/countries', (req, res, next) => {
+  client.search({
+    index: 'migration',
+    type: '_doc',
+    body: {
+      'size': 0,
+      'aggs': {
+        'country_name': {
+          'terms': {
+            'field': 'sourceCountryId',
+            'size': 9999
+          },
+          'aggs': {
+            'hits': {
+              'top_hits': {
+                'size': 1,
+                '_source': ['sourceCountryName', 'sourceCountryId']
+              }
+            }
+          }
+        }
+      }
+    }
+  }, (err, result) => {
+    if (err) {
+      return next(err);
+    }
+
+    let ret = [];
+    for (let e of result.aggregations.country_name.buckets) {
+      let hit = e.hits.hits.hits[0]._source;
+
+      ret.push({
+        countryId: hit.sourceCountryId,
+        countryName: hit.sourceCountryName
+      });
+    }
+
+    res.send(ret);
+  });
+});
+
+app.get('/countryStats', (req, res, next) => {
   let { startYear, endYear, isoCode, associations } = req.query;
   let filter = [];
   if (startYear || endYear) {
