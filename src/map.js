@@ -7,6 +7,8 @@ echarts.registerMap('world', worldMap);
 let max = -Infinity;
 let min = Infinity;
 
+const onClickHanders = [];
+
 const colorSchemes = {
   outflow: ['rgb(237,248,251)', 'rgb(204,236,230)', 'rgb(153,216,201)', 'rgb(102,194,164)', 'rgb(44,162,95)', 'rgb(0,109,44)'],
   inflow: ['rgb(84,48,5)', 'rgb(140,81,10)', 'rgb(191,129,45)', 'rgb(223,194,125)', 'rgb(246,232,195)', 'rgb(245,245,245)'].reverse(),
@@ -16,7 +18,7 @@ const colorSchemes = {
 const option = {
   backgroundColor: '#fff',
   title: {
-    text: 'World Population (2011)',
+    text: 'World Migration Outflow (1980)',
     left: 'center',
     top: 'top',
     textStyle: {
@@ -42,10 +44,10 @@ const option = {
   },
   series: [
     {
-      name: 'World Population (2010)',
+      name: 'World Migration Outflow (1980)',
       type: 'map',
       mapType: 'world',
-      roam: true,
+      roam: false,
       itemStyle: {
         emphasis: { label: { show: true } },
       },
@@ -57,6 +59,10 @@ const option = {
 const myChart = echarts.init(document.getElementById('map'));
 // use configuration item and data specified to show chart
 myChart.setOption(option);
+
+myChart.on('click', (data) => {
+  onClickHanders.forEach(handler => handler(data.data.countryId));
+});
 
 function defineMaxAndMins(mapData) {
   mapData.forEach((itemOpt) => {
@@ -126,8 +132,20 @@ function updateMap(data) {
   renderMap(mapData);
   // playData(data);
 }
-// myChart.on('click', (data) => { console.log(data); });
+
+function registerOnClickHandler(onClick) {
+  onClickHanders.push(onClick);
+}
+
+function deregisterOnClickHandler(onClick) {
+  const index = onClickHanders.indexOf(onClick);
+  if (index > -1) {
+    onClickHanders.splice(index, 1);
+  }
+}
 
 export default {
   updateMap,
+  registerOnClickHandler,
+  deregisterOnClickHandler,
 };

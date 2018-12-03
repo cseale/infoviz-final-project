@@ -11,16 +11,35 @@ import '../styles.css';
 import api from './api';
 
 // charts
-import './line';
-import './scatterplot';
-import './stackedbarchart';
 import map from './map';
+import area from './area';
 
-import { addOptions, COUNTRY_SELECT_ID } from './controls';
+import controls from './controls';
 
-api.getCountryStats().then((data) => {
-  map.updateMap(data.data);
+let stats = [];
+let countryCode = '';
+
+function handleCountryUpdate(value) {
+  countryCode = value;
+  area.updateChart(stats, countryCode);
+  console.log('carted upated');
+}
+
+// listen to controls
+
+controls.registerOnUpdateEventHandlers(controls.COUNTRY_SELECT_ID, handleCountryUpdate);
+
+// listen to map clicks
+
+map.registerOnClickHandler(handleCountryUpdate);
+map.registerOnClickHandler(value => controls.selectOption(controls.COUNTRY_SELECT_ID, value));
+
+api.getCountryStats().then(({ data }) => {
+  stats = data;
+  map.updateMap(stats);
+  area.updateChart(stats, countryCode);
 });
 
-
-// addOptions(COUNTRY_SELECT_ID, dummyCountries, 'name', 'id');
+api.getCountries().then(({ data }) => {
+  controls.addOptions(controls.COUNTRY_SELECT_ID, data, 'countryName', 'countryId');
+});

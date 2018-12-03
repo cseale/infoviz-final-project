@@ -20,46 +20,40 @@ app.use(express.json());
 
 
 app.get('/countries', (req, res, next) => {
-<<<<<<< HEAD
-  let {
-    startYear, endYear, isoCode, associations,
-  } = req.query;
-  const filter = [];
-=======
   client.search({
     index: 'migration',
     type: '_doc',
     body: {
-      'size': 0,
-      'aggs': {
-        'country_name': {
-          'terms': {
-            'field': 'sourceCountryId',
-            'size': 9999
+      size: 0,
+      aggs: {
+        country_name: {
+          terms: {
+            field: 'sourceCountryId',
+            size: 9999,
           },
-          'aggs': {
-            'hits': {
-              'top_hits': {
-                'size': 1,
-                '_source': ['sourceCountryName', 'sourceCountryId']
-              }
-            }
-          }
-        }
-      }
-    }
+          aggs: {
+            hits: {
+              top_hits: {
+                size: 1,
+                _source: ['sourceCountryName', 'sourceCountryId'],
+              },
+            },
+          },
+        },
+      },
+    },
   }, (err, result) => {
     if (err) {
       return next(err);
     }
 
-    let ret = [];
-    for (let e of result.aggregations.country_name.buckets) {
-      let hit = e.hits.hits.hits[0]._source;
+    const ret = [];
+    for (const e of result.aggregations.country_name.buckets) {
+      const hit = e.hits.hits.hits[0]._source;
 
       ret.push({
         countryId: hit.sourceCountryId,
-        countryName: hit.sourceCountryName
+        countryName: hit.sourceCountryName,
       });
     }
 
@@ -68,9 +62,10 @@ app.get('/countries', (req, res, next) => {
 });
 
 app.get('/countryStats', (req, res, next) => {
-  let { startYear, endYear, isoCode, associations } = req.query;
-  let filter = [];
->>>>>>> b57777635a9bbd25209f5fa308e2ca09b7aa9096
+  let {
+    startYear, endYear, isoCode, associations,
+  } = req.query;
+  const filter = [];
   if (startYear || endYear) {
     filter.push({
       range: {

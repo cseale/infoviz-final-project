@@ -34,8 +34,8 @@ body {
     top: 0;
     height: calc(100vh - 48px);
     padding-top: .5rem;
-    overflow-x: hidden;
-    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    overflow-x: visible;
+    overflow-y: visible; /* Scrollable contents if viewport is shorter than content. */
   }
   
   @supports ((position: -webkit-sticky) or (position: sticky)) {
@@ -154,4 +154,8 @@ body {
 
 .form-check-label {
   font-size: 1rem !important;
+}
+
+.dropdown-menu.show {
+  transform: translate3d(0px, 37px, 170px) !important;
 }
