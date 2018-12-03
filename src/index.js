@@ -7,17 +7,20 @@ import 'bootstrap-select';
 // styles
 import '../styles.css';
 
-// maps
+// api
+import api from './api';
+
+// charts
 import './line';
 import './scatterplot';
 import './stackedbarchart';
-import './map';
+import map from './map';
 
 import { addOptions, COUNTRY_SELECT_ID } from './controls';
 
-const dummyCountries = [
-  { id: 'A', name: 'Country A' },
-  { id: 'B', name: 'Country B' },
-];
+api.getCountryStats().then((data) => {
+  map.updateMap(data.data);
+});
 
-addOptions(COUNTRY_SELECT_ID, dummyCountries, 'name', 'id');
+
+// addOptions(COUNTRY_SELECT_ID, dummyCountries, 'name', 'id');
