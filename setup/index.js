@@ -61,17 +61,37 @@ const mapping = {
         name: 'UN numeric code',
         mapping: { type: 'keyword' }
       },
-      coverage: 'Coverage -Citizens/Foreigners/Both-',
-      gender: 'Gender',
       year: {
         transform: Number,
         name: 'Year'
       },
-      value: {
-        transform: Number,
-        name: 'Value'
+      outflow: {
+        _obj: {
+          esName: {
+            values: ['both', 'foreigners', 'citizens'],
+            function(json) {
+              return json['Coverage -Citizens/Foreigners/Both-'].toLowerCase()
+                .trim();
+            }
+          },
+          _obj: {
+            outflow: {
+              transform: Number,
+              name: 'Value',
+              esName: {
+                values: ['male', 'female', 'total'],
+                function(json) {
+                  return json['Gender'].toLowerCase()
+                    .trim();
+                }
+              }
+            }
+          }
+        }
       }
     },
+    id: ['sourceCountryId', 'year'],
+    update: true,
     path: '../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/DEMIG-C2C-Migration-Outflow.csv'
   },
   big_mac: {
@@ -113,6 +133,107 @@ const mapping = {
 
 };
 
+function analiseDescriptor(descriptor) {
+  let properties = {};
+
+  if (descriptor._obj) {
+    let res = analiseDescriptor(descriptor._obj);
+
+    if (descriptor.esName) {
+      for (let e of descriptor.esName.values) {
+        properties[e] = { properties: res };
+      }
+    }
+  } else {
+    for (let esPropertyName in descriptor) {
+      let mapping;
+      let value = descriptor[esPropertyName];
+      if (typeof value === 'string') {
+        mapping = { 'type': 'keyword' };
+      } else {
+        if (typeof value === 'object') {
+          if (value.esName) {
+            esPropertyName = value.esName.values;
+          }
+          if (value._obj) {
+            if (Array.isArray(esPropertyName)) {
+              let res = { properties: analiseDescriptor(value._obj) };
+              for (let e of esPropertyName) {
+                properties[e] = res;
+              }
+            } else {
+              properties[esPropertyName] = { properties: analiseDescriptor(value._obj) };
+            }
+            continue;
+          }
+        }
+        mapping = value.mapping;
+
+        if (!mapping) {
+          mapping = { 'type': 'integer' };
+        }
+      }
+      if (Array.isArray(esPropertyName)) {
+        for (let e of esPropertyName) {
+          properties[e] = mapping;
+        }
+      } else {
+        properties[esPropertyName] = mapping;
+      }
+    }
+  }
+
+
+  return properties;
+}
+
+function packDescriptor(json, descriptor) {
+  let esPack = {};
+
+  if (descriptor._obj) {
+    esPack = packDescriptor(json, descriptor._obj);
+    if (descriptor.esName) {
+      let o = {};
+      o[descriptor.esName.function(json)] = esPack;
+      esPack = o;
+    }
+  } else {
+    for (let esPropertyName in descriptor) {
+      let value = descriptor[esPropertyName];
+      let ret;
+      if (typeof value === 'string') {
+        ret = json[value];
+      } else {
+        if (typeof value === 'object') {
+          if (value.esName) {
+            esPropertyName = value.esName.function(json);
+          }
+          if (value._obj) {
+            esPack[esPropertyName] = packDescriptor(json, value._obj);
+            continue;
+          }
+        }
+
+        let { transform, name } = value;
+        ret = json[name];
+        if (transform) {
+          if (Array.isArray(transform)) {
+            for (let tr of transform) {
+              ret = tr(ret);
+            }
+          } else {
+            ret = transform(ret);
+          }
+        }
+      }
+
+      esPack[esPropertyName] = ret;
+    }
+  }
+
+  return esPack;
+}
+
 /**
  *
  * @type {Client}
@@ -124,25 +245,15 @@ const client = new elasticsearch.Client({
 let c = 0;
 
 for (let index in mapping) {
-  let { descriptor, path } = mapping[index];
+  let { descriptor, path, update, id } = mapping[index];
 
-  let properties = {};
+  let properties = analiseDescriptor(descriptor);
 
-  for (let esPropertyName in descriptor) {
-    let mapping;
-    let value = descriptor[esPropertyName];
-    if (typeof value === 'string') {
-      mapping = { 'type': 'keyword' };
-    } else {
-      mapping = value.mapping;
-
-      if (!mapping) {
-        mapping = { 'type': 'integer' };
-      }
-    }
-
-    properties[esPropertyName] = mapping;
-  }
+  console.log(require('util')
+    .inspect(properties, {
+      depth: null,
+      colors: true
+    }));
 
   client.indices.create({
     index,
@@ -167,37 +278,40 @@ for (let index in mapping) {
 
         // nameToCode[json['COUNTRIES']] = json['UN numeric code'];
 
-        let esPack = {};
+        let esPack = packDescriptor(json, descriptor);
 
-        for (let esPropertyName in descriptor) {
-          let value = descriptor[esPropertyName];
-          let ret;
-          if (typeof value === 'string') {
-            ret = json[value];
-          } else {
-            let { transform, name } = value;
-            ret = json[name];
-            if (transform) {
-              if (Array.isArray(transform)) {
-                for (let tr of transform) {
-                  ret = tr(ret);
-                }
-              } else {
-                ret = transform(ret);
-              }
-            }
+        let _id;
+        if (id) {
+          _id = '';
+          for (let e of id) {
+            _id += esPack[e];
           }
-
-          esPack[esPropertyName] = ret;
         }
 
-        tasks.push({
-          index: {
-            _index: index,
-            _type: '_doc',
-          }
-        });
-        tasks.push(esPack);
+        if (update) {
+          tasks.push({
+            update: {
+              _index: index,
+              _type: '_doc',
+              _id
+            }
+          });
+          tasks.push({
+            doc: esPack,
+            doc_as_upsert: true
+          });
+        } else {
+          tasks.push({
+            index: {
+              _index: index,
+              _type: '_doc',
+              _id
+            }
+          });
+          tasks.push(esPack);
+        }
+
+
       }, e => {
         throw e;
       }, () => {
@@ -219,7 +333,7 @@ function bulkThread() {
   let body = tasks.splice(0, 300);
   if (body.length) {
     times = 0;
-    // console.log(body);
+    console.log(body);
     client.bulk({ body }, function (err, response) {
       if (err) {
         console.error(err);
