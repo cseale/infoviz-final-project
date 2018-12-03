@@ -1,4 +1,6 @@
 import $ from 'jquery';
+import 'bootstrap-select';
+import 'bootstrap-select/dist/css/bootstrap-select.css';
 
 const COUNTRY_SELECT_ID = 'countrySelect';
 const MEASURE_SELECT_ID = 'measureSelect';

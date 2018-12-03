@@ -18,14 +18,12 @@ body {
    */
   
   .sidebar {
-    min-width: 200px;
-    max-width: 200px;
-    position: fixed;
+    height:160px;
     top: 0;
     bottom: 0;
     left: 0;
     z-index: 100; /* Behind the navbar */
-    padding: 48px 0 0; /* Height of navbar */
+    padding: 60px 0 0; /* Height of navbar */
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
   }
   
@@ -75,8 +73,6 @@ body {
   
   [role="main"] {
     width: 100%;
-    padding-top: 48px;
-    margin-left: 200px;
     padding-left: 48px;
   }
   
@@ -158,4 +154,24 @@ body {
 
 .dropdown-menu.show {
   transform: translate3d(0px, 37px, 170px) !important;
+}
+
+.slider {
+  width: 400px;
+  height: 20px;
+}
+
+.slider-container {
+  width: 450px;
+  display: flex;
+  flex-direction: row;
+  padding-top: 8px;
+}
+
+.slider-text-left {
+  padding-right: 20px;
+}
+
+.slider-text-right {
+  padding-left: 20px;
 }

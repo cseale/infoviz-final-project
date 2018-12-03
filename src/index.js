@@ -1,8 +1,6 @@
 // bootstrap
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap-select/dist/css/bootstrap-select.css';
-import 'bootstrap-select';
 
 // styles
 import '../styles.css';
@@ -15,6 +13,7 @@ import map from './map';
 import area from './area';
 
 import controls from './controls';
+import './slider';
 
 let stats = [];
 let countryCode = '';
