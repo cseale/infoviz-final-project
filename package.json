@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npm run start-front && npm run start-back",
+    "setup": "node ./setup",
     "start-front": "pm2 start ./node_modules/.bin/http-server --name frontend -- ./dist",
     "start-back": "pm2 start ./backend-src --name backend",
     "restart": "pm2 restart frontend backend",
