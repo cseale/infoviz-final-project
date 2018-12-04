@@ -7,6 +7,10 @@ const option = {
   },
   yAxis: {
     type: 'value',
+    boundaryGap: [0, '100%'],
+    splitLine: {
+      show: false,
+    },
   },
   series: [{
     type: 'line',
