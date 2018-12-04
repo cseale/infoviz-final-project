@@ -135,6 +135,7 @@ function updateMap(data) {
 
 function registerOnClickHandler(onClick) {
   onClickHanders.push(onClick);
+  return onClick;
 }
 
 function deregisterOnClickHandler(onClick) {
