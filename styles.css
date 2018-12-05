@@ -156,10 +156,6 @@ body {
   font-size: 1rem !important;
 }
 
-.dropdown-menu.show {
-  transform: translate3d(0px, 37px, 170px) !important;
-}
-
 .slider {
   width: 400px;
   height: 20px;

@@ -136,6 +136,11 @@ async function playData(data) {
   }
 }
 
+function selectCountry(code) {
+  // find country in data
+  // set is value of selected to true
+}
+
 function updateMap(data) {
   data = formatDataForMap(data);
   const mapData = filterMapData(data, 1980);
@@ -158,6 +163,7 @@ function deregisterOnClickHandler(onClick) {
 
 export default {
   updateMap,
+  selectCountry,
   registerOnClickHandler,
   deregisterOnClickHandler,
 };
