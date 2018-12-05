@@ -9,10 +9,12 @@ let min = Infinity;
 
 const onClickHanders = [];
 
+const diveringScheme = ['rgb(103,0,31)', 'rgb(178,24,43)', 'rgb(214,96,77)', 'rgb(244,165,130)', 'rgb(253,219,199)', 'rgb(247,247,247)', 'rgb(209,229,240)', 'rgb(146,197,222)', 'rgb(67,147,195)', 'rgb(33,102,172)', 'rgb(5,48,97)'];
+
 const colorSchemes = {
-  outflow: ['rgb(237,248,251)', 'rgb(204,236,230)', 'rgb(153,216,201)', 'rgb(102,194,164)', 'rgb(44,162,95)', 'rgb(0,109,44)'],
-  inflow: ['rgb(84,48,5)', 'rgb(140,81,10)', 'rgb(191,129,45)', 'rgb(223,194,125)', 'rgb(246,232,195)', 'rgb(245,245,245)'].reverse(),
-  netflow: ['rgb(84,48,5)', 'rgb(140,81,10)', 'rgb(191,129,45)', 'rgb(223,194,125)', 'rgb(246,232,195)', 'rgb(245,245,245)', 'rgb(199,234,229)', 'rgb(128,205,193)', 'rgb(53,151,143)', 'rgb(1,102,94)', 'rgb(0,60,48)'],
+  outflow: diveringScheme.slice(5),
+  inflow: diveringScheme.slice(5).reverse(),
+  netflow: diveringScheme,
 };
 
 const option = {
@@ -31,7 +33,7 @@ const option = {
       let value = (`${params.value}`).split('.');
       value = `${value[0].replace(/(\d{1,3})(?=(?:\d{3})+(?!\d))/g, '$1,')
       }.${value[1]}`;
-      return `${params.seriesName}<br/>${params.name} : ${value}`;
+      return `${params.seriesName}<br/>${params.name} : ${value}`.replace('.undefined', '');
     },
   },
   visualMap: {
@@ -39,7 +41,7 @@ const option = {
     realtime: false,
     calculable: true,
     inRange: {
-      color: colorSchemes.netflow,
+      color: colorSchemes.outflow,
     },
   },
   series: [
@@ -47,9 +49,18 @@ const option = {
       name: 'World Migration Outflow (1980)',
       type: 'map',
       mapType: 'world',
-      roam: false,
+      roam: true,
+      zoom: 5,
+      center: [7.934967, 50.774546],
       itemStyle: {
-        emphasis: { label: { show: true } },
+        opacity: 1,
+        emphasis: {
+          areaColor: null,
+          opacity: 0.8,
+          label: {
+            show: true,
+          },
+        },
       },
     },
   ],

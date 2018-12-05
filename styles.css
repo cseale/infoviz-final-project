@@ -1,5 +1,6 @@
 body {
     font-size: .875rem;
+    overflow: hidden;
   }
   
   .navbar-brand {
@@ -18,13 +19,12 @@ body {
    */
   
   .sidebar {
-    height:160px;
+    height:100px;
     position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
     z-index: 100; /* Behind the navbar */
-    padding: 60px 0 0; /* Height of navbar */
     box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
   }
   
@@ -74,10 +74,10 @@ body {
   
   [role="main"] {
     width: 100%;
-    padding-top: 160px;
+    padding-top: 100px;
     padding-left: 48px;
-    max-width: 1200px;
     margin: 0 auto;
+    overflow: hidden;
   }
   
   /*

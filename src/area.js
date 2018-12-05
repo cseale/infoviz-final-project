@@ -1,6 +1,12 @@
 import echarts from 'echarts';
 
 const option = {
+  grid: {
+    left: 20,
+    top: 8,
+    right: 8,
+    bottom: 40,
+  },
   xAxis: {
     type: 'category',
     boundaryGap: false,

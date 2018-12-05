@@ -1,21 +1,14 @@
 import echarts from 'echarts';
 
-// based on prepared DOM, initialize echarts instance
-const myChart = echarts.init(document.getElementById('stackedbar'));
-
 const option = {
-  title: {
-    text: '世界人口总量',
-    subtext: '数据来自网络',
-  },
   tooltip: {
     trigger: 'axis',
-    axisPointer: {
-      type: 'shadow',
+    axisPointer: { // 坐标轴指示器，坐标轴触发有效
+      type: 'shadow', // 默认为直线，可选为：'line' | 'shadow'
     },
   },
   legend: {
-    data: ['2011年', '2012年'],
+    data: ['Male', 'Female'],
   },
   grid: {
     left: '3%',
@@ -25,25 +18,40 @@ const option = {
   },
   xAxis: {
     type: 'value',
-    boundaryGap: [0, 0.01],
   },
   yAxis: {
     type: 'category',
-    data: ['巴西', '印尼', '美国', '印度', '中国', '世界人口(万)'],
+    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
   },
   series: [
     {
-      name: '2011年',
+      name: '直接访问',
       type: 'bar',
-      data: [18203, 23489, 29034, 104970, 131744, 630230],
+      stack: '总量',
+      label: {
+        normal: {
+          show: true,
+          position: 'insideRight',
+        },
+      },
+      data: [320, 302, 301, 334, 390, 330, 320, 300, 456, 122],
     },
     {
-      name: '2012年',
+      name: '邮件营销',
       type: 'bar',
-      data: [19325, 23438, 31000, 121594, 134141, 681807],
+      stack: '总量',
+      label: {
+        normal: {
+          show: true,
+          position: 'insideRight',
+        },
+      },
+      data: [120, 132, 101, 134, 90, 230, 210, 222, 322, 30],
     },
   ],
 };
 
+// based on prepared DOM, initialize echarts instance
+const myChart1 = echarts.init(document.getElementById('stackedbar1'));
 // use configuration item and data specified to show chart
-myChart.setOption(option);
+myChart1.setOption(option);

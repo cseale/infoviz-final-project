@@ -12,10 +12,6 @@
 </head>
 
 <body>
-<nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Migration Flow</a>
-</nav>
-
 <div class="container-fluid">
     <div class="row">
         <nav class="col d-none d-md-block bg-light sidebar">
@@ -95,31 +91,43 @@
                 <div class="row">
                     <div class="col">
                         <div class="pt-3 pb-2 mb-3 border-bottom">
-                            <h1 class="h2">What are the total outflows per country for 1980? (include play button for range)</h1>
+                            <h1 class="h2">What are the Total Outflows Per Country Between <span id="startYear"></span> and <span id="endYear"></span>?</h1>
                         </div>
-                        <div id="map" style="width:1080px; height:720px;"></div>
+                        <div id="map" style="width:1120px; height:1020px;"></div>
                         
                     </div>
-                    <div id="trend" class="col stacked-chart-container">
-                        <div class="pt-3 pb-2 mb-3 border-bottom">
-                            <h1 class="h2">What is the overall trend over time?</h1>
-                        </div>
-                        <div id="area" style="width:1200px; height:180px;"></div>
-                        <div class="pt-3 pb-2 mb-3 border-bottom">
-                            <h1 class="h2">What is migration population breakdown?</h1>
-                        </div>
-                        <div id="stackedbar" style="width:800px; height:400px;"></div>
-                    </div>
-                </div>
-                <div class="row">
                     <div class="col scatter-chart-container">
+                        <div id="trend" class="stacked-chart-container">
+                            <div class="pt-3 pb-2 mb-3 border-bottom">
+                                <h1 class="h2">What is the Overall Trend Over Time?</h1>
+                            </div>
+                            <div id="area" style="width:1200px; height:180px;"></div>
+                        </div>
                         <div class="pt-3 pb-2 mb-3 border-bottom">
-                            <h1 class="h2">What factors are having an impact on migration flow?</h1>
+                            <h1 class="h2">What Factors have Impacted Migration Flow?</h1>
                         </div>
                         <div class="scatter-flex">
-                            <div id="scatterplot" style="width:600px; height:400px;"></div>
-                            <div id="scatterplot2" style="width:600px; height:400px;"></div>
-                            <div id="scatterplot3" style="width:600px; height:400px;"></div>
+                            <div id="scatterplot" style="width:400px; height:380px;"></div>
+                            <div id="scatterplot2" style="width:400px; height:380px;"></div>
+                            <div id="scatterplot3" style="width:400px; height:380px;"></div>
+                        </div>
+                        <div class="row flex-row">
+                            <div>
+                                <div class="pt-3 pb-2 mb-3 border-bottom" style="width:600px;">
+                                    <h1 class="h2">Where are they Migrating From/To?</h1>
+                                </div>
+                                <div>
+                                    <div id="stackedbar1" style="width:600px; height:300px;"></div>
+                                </div>
+                            </div>
+                            <div style="padding-left:20px;">
+                                <div class="pt-3 pb-2 mb-3 border-bottom" style="width:600px;">
+                                    <h1 class="h2">Total Proportion fo Migrants</h1>
+                                </div>
+                                <div>
+                                    <div id="pie" style="width:600px; height:300px;"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

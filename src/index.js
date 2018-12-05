@@ -1,7 +1,6 @@
 // bootstrap
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import $ from 'jquery';
 
 // styles
 import '../styles.css';
@@ -12,43 +11,40 @@ import api from './api';
 // charts
 import map from './map';
 import area from './area';
+import './scatterplot';
+import './stackedbarchart';
+import './pie';
 
 import controls from './controls';
-import './slider';
+import slider from './slider';
 
 let stats = [];
 let countryCode = '';
-
-let scrollOnMapClickHandler;
-
-function scrollToElement(elementId) {
-  $('html, body').animate({
-    scrollTop: $(`#${elementId}`).offset().top - 200,
-  }, 1000, () => {
-    window.location.hash = elementId;
-    map.deregisterOnClickHandler(scrollOnMapClickHandler);
-  });
-}
+let startYear = 1945;
+let endYear = 2008;
 
 function handleCountryUpdate(value) {
   countryCode = value;
   area.updateChart(stats, countryCode);
 }
 
-// listen to controls
+function handleTimeRangeUpdate(values) {
+  [startYear, endYear] = values;
+}
 
+// listen to controls
+slider.registerOnUpdateHandlers(handleTimeRangeUpdate);
 controls.registerOnUpdateEventHandlers(controls.COUNTRY_SELECT_ID, handleCountryUpdate);
 
 // listen to map clicks
 
 map.registerOnClickHandler(handleCountryUpdate);
-scrollOnMapClickHandler = map.registerOnClickHandler(() => scrollToElement('trend'));
 map.registerOnClickHandler(value => controls.selectOption(controls.COUNTRY_SELECT_ID, value));
 
 api.getCountryStats().then(({ data }) => {
   stats = data;
-  map.updateMap(stats);
-  area.updateChart(stats, countryCode);
+  map.updateMap(stats, startYear, endYear);
+  area.updateChart(stats, countryCode, startYear, endYear);
 });
 
 api.getCountries().then(({ data }) => {
