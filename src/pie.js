@@ -1,4 +1,5 @@
 import echarts from 'echarts';
+import _ from 'lodash';
 import store from './store';
 
 const option = {
@@ -9,7 +10,7 @@ const option = {
   legend: {
     orient: 'vertical',
     x: 'left',
-    data: ['Male', 'Female'],
+    data: ['Male', 'Female', 'Unknown'],
   },
   series: [
     {
@@ -51,22 +52,24 @@ function filterData(data, countryId) {
 
   return data
     .filter(d => d.countryId === countryId
-      && d.year <= store.getCurrentEndYear()
-      && d.year >= store.getCurrentStartYear());
+      && Number(d.year) <= store.getCurrentEndYear()
+      && Number(d.year) >= store.getCurrentStartYear());
 }
 
 function calculateGenderTotals(data) {
-  // assign value here
-  // ...
-  // ...
   let maleTotal = 0;
-  data.forEach((d) => { maleTotal += d.value; });
-
-  const femaleTotal = 500000;
+  let femaleTotal = 0;
+  let totalTotal = 0;
+  data.forEach((d) => {
+    maleTotal += _.get(d, `${store.getFlowType()}.male`, 0);
+    femaleTotal += _.get(d, `${store.getFlowType()}.female`, 0);
+    totalTotal += _.get(d, `${store.getFlowType()}.total`, 0);
+  });
 
   return [
     { value: maleTotal, name: 'Male' },
     { value: femaleTotal, name: 'Female' },
+    { value: totalTotal - maleTotal - femaleTotal, name: 'Unknown' },
   ];
 }
 

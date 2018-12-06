@@ -1,5 +1,5 @@
 import echarts from 'echarts';
-
+import _ from 'lodash';
 import store from './store';
 
 // based on prepared DOM, initialize echarts instance
@@ -49,11 +49,15 @@ function render(index) {
   const data = filterData(store.getData(),
     store.getCountryCode());
 
+
   const mappedData = data.map(d => ({
-    value: [d.value, random(d.value)],
-    itemStyle: d.year >= store.getCurrentStartYear() && d.year <= store.getCurrentEndYear()
+    value: [_.get(d, `${store.getFlowType()}.total`, 0), random(_.get(d, `${store.getFlowType()}.total`, 0))],
+    itemStyle: Number(d.year) >= store.getCurrentStartYear()
+    && Number(d.year) <= store.getCurrentEndYear()
       ? {} : { color: 'grey', opacity: 0.3 },
   }));
+
+  console.log(mappedData);
 
   myChart[index].setOption({
     series: [

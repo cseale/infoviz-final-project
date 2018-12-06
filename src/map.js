@@ -8,7 +8,6 @@ echarts.registerMap('world', worldMap);
 
 let max = -Infinity;
 let min = Infinity;
-const selectedIndex = null;
 
 const onClickHanders = [];
 
@@ -36,7 +35,9 @@ const option = {
       let value = (`${params.value}`).split('.');
       value = `${value[0].replace(/(\d{1,3})(?=(?:\d{3})+(?!\d))/g, '$1,')
       }.${value[1]}`;
-      return `${params.seriesName}<br/>${params.name} : ${value}`.replace('.undefined', '');
+      let flowType = store.getFlowType();
+      flowType = flowType.charAt(0).toUpperCase() + flowType.substr(1);
+      return `${flowType}: ${store.getCurrentStartYear()} - ${store.getCurrentEndYear()}<br/>${params.name} : ${value}`.replace('.undefined', '');
     },
   },
   visualMap: {
@@ -111,17 +112,30 @@ function formatCountryName(name) {
 }
 
 function formatDataForMap(data) {
-  data.forEach((d) => {
-    d.code = d.countryId;
-    d.name = formatCountryName(d.countryName);
-    // assign value here
-    d.value = _.get(d, `${store.getFlowType()}.total`, 0);
+  const countries = store.getCountries();
+  countries.forEach((country) => {
+    country.name = formatCountryName(country.countryName);
+    let total = 0;
+    data
+      .filter(d => d.countryId === country.countryId)
+      .forEach((d) => {
+        total += _.get(d, `${store.getFlowType()}.total`, 0);
+      });
+
+    country.value = total;
   });
-  return data;
+  // data.forEach((d) => {
+  //   d.code = d.countryId;
+  //   d.name = formatCountryName(d.countryName);
+  //   // assign value here
+  //   d.value = _.get(d, `${store.getFlowType()}.total`, 0);
+  // });
+  return countries;
 }
 
-function filterMapData(data, year) {
-  return data.filter(d => d.year == year);
+function filterMapData(data) {
+  return data.filter(d => Number(d.year) <= store.getCurrentEndYear()
+  && Number(d.year) >= store.getCurrentStartYear());
 }
 
 function renderMap(data) {
@@ -149,8 +163,7 @@ async function playData(data) {
 }
 
 function updateMap() {
-  const data = formatDataForMap(store.getData());
-  const mapData = filterMapData(data, 1967);
+  const mapData = formatDataForMap(filterMapData(store.getData()));
   defineMaxAndMins(mapData);
   renderMap(mapData);
   // playData(data);
