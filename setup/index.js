@@ -158,20 +158,20 @@ function trim(s) {
 // };
 //
 const loader = [
-//   {
-//   id: function (json) {
-//     return json.iso_a3 + new Date(json.date).getFullYear();
-//   },
-//   descriptor: {
-//     name: function () {
-//       return 'big_mac';
-//     },
-//     value: function (json) {
-//       return Number(json.adj_price);
-//     }
-//   },
-//   path: '../datasets/Big Mac Index 2011-2018/big-mac-adjusted-index.csv'
-// }
+  {
+  id: function (json) {
+    return json.iso_a3 + new Date(json.date).getFullYear();
+  },
+  descriptor: {
+    name: function () {
+      return 'big_mac';
+    },
+    value: function (json) {
+      return Number(json.adj_price);
+    }
+  },
+  path: '../datasets/Big Mac Index 2011-2018/big-mac-adjusted-index.csv'
+}
 
 ];
 //
