@@ -20,21 +20,21 @@ app.use(express.json());
 
 app.get('/countries', (req, res, next) => {
   client.search({
-    index: 'migration',
+    index: 'migration_total',
     type: '_doc',
     body: {
       'size': 0,
       'aggs': {
         'country_name': {
           'terms': {
-            'field': 'sourceCountryId',
+            'field': 'countryId',
             'size': 9999
           },
           'aggs': {
             'hits': {
               'top_hits': {
                 'size': 1,
-                '_source': ['sourceCountryName', 'sourceCountryId']
+                '_source': ['countryName', 'countryId']
               }
             }
           }
@@ -50,10 +50,7 @@ app.get('/countries', (req, res, next) => {
     for (let e of result.aggregations.country_name.buckets) {
       let hit = e.hits.hits.hits[0]._source;
 
-      ret.push({
-        countryId: hit.sourceCountryId,
-        countryName: hit.sourceCountryName
-      });
+      ret.push(hit);
     }
 
     res.send(ret);
@@ -62,6 +59,12 @@ app.get('/countries', (req, res, next) => {
 
 app.get('/countryStats', (req, res, next) => {
   let { startYear, endYear, isoCode, associations } = req.query;
+
+  if (associations) {
+    if (!Array.isArray(associations)) {
+      associations = [associations];
+    }
+  }
   let filter = [];
   if (startYear || endYear) {
     filter.push({
@@ -81,7 +84,7 @@ app.get('/countryStats', (req, res, next) => {
       }
     } : {
       'term': {
-        'sourceCountryId': {
+        'countryId': {
           'value': isoCode
         }
       }
@@ -98,40 +101,11 @@ app.get('/countryStats', (req, res, next) => {
   }
 
   client.search({
-    index: 'migration',
+    index: 'migration_total',
     type: '_doc',
     body: {
-      'size': 0,
-      query,
-      'aggs': {
-        'country_join': {
-          'terms': {
-            'field': 'sourceCountryId',
-            'size': 999999
-          },
-          'aggs': {
-            'year_join': {
-              'terms': {
-                'field': 'year',
-                'size': 999999
-              },
-              'aggs': {
-                'sum': {
-                  'sum': {
-                    'field': 'value'
-                  }
-                },
-                'result': {
-                  'top_hits': {
-                    'size': 1,
-                    '_source': ['year', 'sourceCountryName', 'sourceCountryCC', 'sourceCountryId']
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+      'size': 9999,
+      query
     }
   }, (err, result) => {
     if (err) {
@@ -143,78 +117,53 @@ app.get('/countryStats', (req, res, next) => {
       countries = [],
       elements = new Map();
     if (result.hits.total) {
-      for (let countryBucket of result.aggregations.country_join.buckets) {
-        let container;
-        if (associations) {
-          countries.push(countryBucket.key);
-          container = new Map();
-          elements.set(countryBucket.key, container);
-        }
-        for (let yearBucket of countryBucket.year_join.buckets) {
-          let value = yearBucket.sum.value;
-          let elementSource = yearBucket.result.hits.hits[0]._source;
-          let element = {
-            countryId: elementSource.sourceCountryId,
-            year: elementSource.year,
-            countryName: elementSource.sourceCountryName,
-            countryCC: elementSource.sourceCountryCC,
-            value: elementSource.value,
-            associations: {},
-          };
-          element.value = value;
-
-          if (associations) {
-            years.push(element.year);
-            container.set(element.year, element);
-          }
-
-          ret.push(element);
-        }
-      }
+      ret = result.hits.hits.map(e => e._source);
     }
 
-    if (associations) {
-      if (!Array.isArray(associations)) {
-        associations = [associations];
-      }
+    // if (associations) {
+    //   if (!Array.isArray(associations)) {
+    //     associations = [associations];
+    //   }
+    //
+    //   client.search({
+    //     index: associations,
+    //     type: '_doc',
+    //     size: 9999,
+    //     body: {
+    //       'query': {
+    //         'bool': {
+    //           'filter': [{
+    //             'terms': {
+    //               'countryId': countries
+    //             }
+    //           }, {
+    //             'terms': {
+    //               'year': years
+    //             }
+    //           }]
+    //         }
+    //       }
+    //     }
+    //   }, (err, result) => {
+    //     if (err) {
+    //       return next(err);
+    //     }
+    //
+    //     for (let element of result.hits.hits) {
+    //       let container = elements.get(element._source.countryId)
+    //         .get(element._source.year);
+    //       if (container) {
+    //         container.associations[element._index] = { value: element._source.value };
+    //       }
+    //     }
+    //
+    //     res.send(ret);
+    //   });
+    // } else {
+    //   res.send(ret);
+    // }
 
-      client.search({
-        index: associations,
-        type: '_doc',
-        size: 9999,
-        body: {
-          'query': {
-            'bool': {
-              'filter': [{
-                'terms': {
-                  'countryId': countries
-                }
-              }, {
-                'terms': {
-                  'year': years
-                }
-              }]
-            }
-          }
-        }
-      }, (err, result) => {
-        if (err) {
-          return next(err);
-        }
-
-        for (let element of result.hits.hits) {
-          let container = elements.get(element._source.countryId)
-            .get(element._source.year);
-          if (container) {
-            container.associations[element._index] = { value: element._source.value };
-          }
-        }
-
-        res.send(ret);
-      });
-    } else {
-      res.send(ret);
-    }
+    res.send(ret);
   });
 });
 
