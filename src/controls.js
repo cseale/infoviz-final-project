@@ -9,6 +9,8 @@ const FACTOR_SELECT_ID = 'factorSelect';
 
 const onUpdateHandlers = {
   countrySelect: [],
+  measureSelect: [],
+  factorSelect: [],
 };
 
 function sortAlphabetically(data, key) {
