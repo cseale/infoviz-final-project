@@ -106,6 +106,9 @@ function renderChart(data) {
       {
         data: years.map((y) => {
           const values = data.filter(d => d.year === y);
+          // assign value here
+          // ...
+          // ...
           return values ? values[0] : 0;
         }),
       },

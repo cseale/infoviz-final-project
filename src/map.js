@@ -1,4 +1,5 @@
 import echarts from 'echarts';
+import _ from 'lodash';
 import store from './store';
 
 const worldMap = require('echarts/map/json/world.json');
@@ -48,7 +49,7 @@ const option = {
   },
   series: [
     {
-      name: 'World Migration Outflow (1980)',
+      name: `${store.getCountryCode()}`,
       type: 'map',
       mapType: 'world',
       roam: true,
@@ -81,14 +82,18 @@ myChart.on('click', (data) => {
 });
 
 function defineMaxAndMins(mapData) {
+  let tempMin = Infinity;
+  let tempMax = -Infinity;
   mapData.forEach((itemOpt) => {
-    if (itemOpt.value > max) {
-      max = itemOpt.value;
+    if (itemOpt.value > tempMax) {
+      tempMax = itemOpt.value;
     }
-    if (itemOpt.value < min) {
-      min = itemOpt.value;
+    if (itemOpt.value < tempMin) {
+      tempMin = itemOpt.value;
     }
   });
+  min = tempMin;
+  max = tempMax;
 }
 
 function formatCountryName(name) {
@@ -109,12 +114,14 @@ function formatDataForMap(data) {
   data.forEach((d) => {
     d.code = d.countryId;
     d.name = formatCountryName(d.countryName);
+    // assign value here
+    d.value = _.get(d, `${store.getFlowType()}.total`, 0);
   });
   return data;
 }
 
 function filterMapData(data, year) {
-  return data.filter(d => d.year === year);
+  return data.filter(d => d.year == year);
 }
 
 function renderMap(data) {
@@ -141,9 +148,9 @@ async function playData(data) {
   }
 }
 
-function updateMap(data) {
-  data = formatDataForMap(store.getData());
-  const mapData = filterMapData(data, 1980);
+function updateMap() {
+  const data = formatDataForMap(store.getData());
+  const mapData = filterMapData(data, 1967);
   defineMaxAndMins(mapData);
   renderMap(mapData);
   // playData(data);

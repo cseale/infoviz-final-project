@@ -56,6 +56,9 @@ function filterData(data, countryId) {
 }
 
 function calculateGenderTotals(data) {
+  // assign value here
+  // ...
+  // ...
   let maleTotal = 0;
   data.forEach((d) => { maleTotal += d.value; });
 
