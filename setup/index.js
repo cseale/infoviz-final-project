@@ -50,22 +50,26 @@ const mapping = {
         name: 'Reporting country'
       },
       reportingCountryId: {
-        transform: [trim, loadFromDoubleObj(byCC, nameToCode, 'id')],
+        transform: [trim, loadFromDoubleObj(byCC, nameToCode, 'id3')],
         name: 'Reporting country',
         mapping: { type: 'keyword' }
       },
-      sourceCountryName: 'COUNTRIES',
-      sourceCountryCC: { name: 'UN numeric code' },
-      sourceCountryId: {
-        transform: loadFromObj(byCC, 'id'),
-        name: 'UN numeric code',
+      countryName: 'COUNTRIES',
+      countryCC: {
+        transform: Number,
+        name: 'UN numeric code'
+      },
+      countryId: {
+        name: 'Country codes -UN based-',
         mapping: { type: 'keyword' }
+
       },
       year: {
         transform: Number,
         name: 'Year'
       },
       outflow: {
+        onlyFor: 'outflow',
         _obj: {
           esName: {
             values: ['both', 'foreigners', 'citizens'],
@@ -88,50 +92,81 @@ const mapping = {
             }
           }
         }
+      },
+      inflow: {
+        onlyFor: 'inflow',
+        _obj: {
+          esName: {
+            values: ['both', 'foreigners', 'citizens'],
+            function(json) {
+              return json['Coverage -Citizens/Foreigners/Both-'].toLowerCase()
+                .trim();
+            }
+          },
+          _obj: {
+            inflow: {
+              transform: Number,
+              name: 'Value',
+              esName: {
+                values: ['male', 'female', 'total'],
+                function(json) {
+                  return json['Gender'].toLowerCase()
+                    .trim();
+                }
+              }
+            }
+          }
+        }
+      },
+      associations: {
+        mapping: {
+          properties: {
+            name: {
+              type: 'keyword',
+            },
+            value: {
+              type: 'float'
+            }
+
+          },
+          type: 'nested'
+        }
       }
     },
-    id: ['sourceCountryId', 'year'],
+    id: ['countryId', 'year'],
     update: true,
-    path: '../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/DEMIG-C2C-Migration-Outflow.csv'
-  },
-  big_mac: {
-    descriptor: {
-      year: {
-        transform: function (y) {
-          return new Date(y).getFullYear();
-        },
-        name: 'date'
+    path: [
+      {
+        path: '../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/DEMIG-C2C-Migration-Outflow.csv',
+        name: 'outflow'
       },
-      value: {
-        name: 'adj_price',
-        transform : Number,
-        mapping: {
-          type: 'float'
-        }
+      {
+        path: '../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/DEMIG-C2C-Migration-Inflow-part-a.csv',
+        name: 'inflow'
       },
-      countryId : {
-        transform: loadFromObj(byId3, 'id'),
-        name: 'iso_a3',
-        mapping: {
-          type: 'keyword'
-        }
-      },
-      countryCC : {
-        transform: loadFromObj(byId3, 'cc'),
-        name: 'iso_a3',
-      },
-      countryName : {
-        transform: loadFromObj(byId3, 'name'),
-        name: 'iso_a3',
-        mapping: {
-          type: 'keyword'
-        }
+      {
+        path: '../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/DEMIG-C2C-Migration-Inflow-part-b.csv',
+        name: 'inflow'
       }
-    },
-    path: '../datasets/Big Mac Index 2011-2018/big-mac-adjusted-index.csv'
-  },
+    ]
+  }
 
 };
+
+const loader = [{
+  id: function (json) {
+    return json.iso_a3 + new Date(json.date).getFullYear();
+  },
+  descriptor: {
+    name: function () {
+      return 'big_mac';
+    },
+    value: function (json) {
+      return Number(json.adj_price);
+    }
+  },
+  path: '../datasets/Big Mac Index 2011-2018/big-mac-adjusted-index.csv'
+}];
 
 function analiseDescriptor(descriptor) {
   let properties = {};
@@ -187,14 +222,14 @@ function analiseDescriptor(descriptor) {
   return properties;
 }
 
-function packDescriptor(json, descriptor) {
+function packDescriptor(json, descriptor, pathName) {
   let esPack = {};
 
   if (descriptor._obj) {
-    esPack = packDescriptor(json, descriptor._obj);
+    esPack = packDescriptor(json, descriptor._obj, pathName);
     if (descriptor.esName) {
       let o = {};
-      o[descriptor.esName.function(json)] = esPack;
+      o[descriptor.esName.function(json, pathName)] = esPack;
       esPack = o;
     }
   } else {
@@ -205,11 +240,14 @@ function packDescriptor(json, descriptor) {
         ret = json[value];
       } else {
         if (typeof value === 'object') {
+          if (value.onlyFor && value.onlyFor !== pathName) {
+            continue;
+          }
           if (value.esName) {
-            esPropertyName = value.esName.function(json);
+            esPropertyName = value.esName.function(json, pathName);
           }
           if (value._obj) {
-            esPack[esPropertyName] = packDescriptor(json, value._obj);
+            esPack[esPropertyName] = packDescriptor(json, value._obj, pathName);
             continue;
           }
         }
@@ -245,98 +283,181 @@ const client = new elasticsearch.Client({
 let c = 0;
 
 for (let index in mapping) {
-  let { descriptor, path, update, id } = mapping[index];
+  c++;
+  let { descriptor, path, update, id, _index } = mapping[index];
 
   let properties = analiseDescriptor(descriptor);
-
-  console.log(require('util')
-    .inspect(properties, {
-      depth: null,
-      colors: true
-    }));
-
-  client.indices.create({
-    index,
-    body: {
-      'settings': {
-        'number_of_shards': 1
-      },
-      'mappings': {
-        '_doc': {
-          properties
+  if (_index) {
+    index = _index;
+    go();
+  } else {
+    client.indices.create({
+        index,
+        body: {
+          'settings': {
+            'number_of_shards': 1
+          },
+          'mappings': {
+            '_doc': {
+              properties
+            }
+          }
         }
+      }, (err, res) => {
+        if (err) {
+          throw err;
+        }
+
+        go();
       }
+    );
+  }
+
+  // noinspection JSAnnotator
+  function go() {
+    if (!Array.isArray(path)) {
+      path = [path];
     }
-  }, (err, res) => {
-    if (err) {
-      throw err;
+
+    for (let pathElement of path) {
+      let filePath = pathElement,
+        name;
+      if (typeof pathElement === 'object') {
+        filePath = pathElement.path;
+        name = pathElement.name;
+      }
+
+      csv()
+        .fromFile(filePath)
+        .subscribe((json) => {
+
+          // nameToCode[json['COUNTRIES']] = json['UN numeric code'];
+
+          let esPack = packDescriptor(json, descriptor, name);
+
+          let _id;
+          if (id) {
+            _id = '';
+            for (let e of id) {
+              _id += esPack[e];
+            }
+
+            if (/undefined/.test(_id)) {
+              console.error('Failed to deduce id');
+              console.error(json);
+              console.error(esPack);
+            }
+
+          }
+
+          if (update) {
+            tasks.push({
+              update: {
+                _index: index,
+                _type: '_doc',
+                _id,
+                "retry_on_conflict" : 3
+              }
+            });
+            tasks.push({
+              doc: esPack,
+              doc_as_upsert: true
+            });
+          } else {
+            tasks.push({
+              index: {
+                _index: index,
+                _type: '_doc',
+                _id
+              }
+            });
+            tasks.push(esPack);
+          }
+
+
+        }, e => {
+          throw e;
+        }, () => {
+          console.log('Index ' + index + ' completed.');
+          // console.log(JSON.stringify(nameToCode));
+        });
     }
+  }
+
+
+}
+
+
+function load() {
+  console.log('LOADER CALLED');
+  for (let l of loader) {
+    let { descriptor, path, id, _index } = l;
 
     csv()
       .fromFile(path)
       .subscribe((json) => {
-
-        // nameToCode[json['COUNTRIES']] = json['UN numeric code'];
-
-        let esPack = packDescriptor(json, descriptor);
-
-        let _id;
-        if (id) {
-          _id = '';
-          for (let e of id) {
-            _id += esPack[e];
+        tasks.push({
+          update: {
+            _index: 'migration',
+            _type: '_doc',
+            _id: id(json)
           }
-        }
+        });
+        tasks.push({
 
-        if (update) {
-          tasks.push({
-            update: {
-              _index: index,
-              _type: '_doc',
-              _id
+          'script': {
+            'source': `
+                      if (ctx._source.associations == null)
+                  ctx._source.associations = [];
+
+                  ctx._source.associations.add(params.associations);
+                  `,
+            'params': {
+              'associations': [
+                {
+                  'name': descriptor.name(json),
+                  'value': descriptor.value(json)
+                }
+              ]
             }
-          });
-          tasks.push({
-            doc: esPack,
-            doc_as_upsert: true
-          });
-        } else {
-          tasks.push({
-            index: {
-              _index: index,
-              _type: '_doc',
-              _id
-            }
-          });
-          tasks.push(esPack);
-        }
-
-
-      }, e => {
-        throw e;
-      }, () => {
-        console.log('Index ' + index + ' completed.');
-        // console.log(JSON.stringify(nameToCode));
+          }
+        });
       });
-  });
+  }
 }
 
 let times = 0;
 
-setTimeout(() => {
-  for (var i = 0; i < 10; i++) {
-    bulkThread();
-  }
-}, 1000);
+startWorkers();
+
+function startWorkers() {
+  times = 0;
+  setTimeout(() => {
+    for (var i = 0; i < 10; i++) {
+      bulkThread();
+    }
+  }, 2000);
+}
+
 
 function bulkThread() {
   let body = tasks.splice(0, 300);
   if (body.length) {
     times = 0;
-    console.log(body);
     client.bulk({ body }, function (err, response) {
       if (err) {
         console.error(err);
+      }
+
+      if (response.errors) {
+        console.log(JSON.stringify(body));
+        console.log(JSON.stringify(response));
+        console.log(require('util')
+          .inspect(response, {
+            depth: null,
+            colors: true
+          }));
+
       }
 
       bulkThread();
@@ -344,8 +465,10 @@ function bulkThread() {
     });
   } else {
     console.log('Nope');
-    if (times++ < 30) {
+    if (times++ < 100) {
       setTimeout(bulkThread, 1000);
     }
   }
 }
+
+process.on('beforeExit', load);

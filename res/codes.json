@@ -1106,6 +1106,13 @@
     "id3": "NLD"
   },
   {
+    "name": "Netherlands",
+    "id": "AN",
+    "cc": 530,
+    "ccPadding": "530",
+    "id3": "ANT"
+  },
+  {
     "name": "New Caledonia",
     "id": "NC",
     "cc": 540,
@@ -1383,6 +1390,13 @@
     "id": "RS",
     "cc": 688,
     "ccPadding": "688",
+    "id3": "SRB"
+  },
+  {
+    "name": "Serbia and Montenegro",
+    "id": "RS",
+    "cc": 891,
+    "ccPadding": "891",
     "id3": "SRB"
   },
   {
@@ -1741,5 +1755,40 @@
     "cc": 716,
     "ccPadding": "716",
     "id3": "ZWE"
+  },
+  {
+    "name": "Other",
+    "cc" : 995,
+    "ccPadding" : "995",
+    "id": "OH",
+    "id3": "OTH"
+  },
+  {
+    "name": "Yugoslavia",
+    "cc" : 996,
+    "ccPadding" : "996",
+    "id": "YU",
+    "id3": "YUG"
+  },
+  {
+    "name": "Yugoslavia",
+    "cc" : 890,
+    "ccPadding" : "890",
+    "id": "YU",
+    "id3": "YUG"
+  },
+  {
+    "name": "Czechoslovakia",
+    "cc" : 200,
+    "ccPadding" : "200",
+    "id": "CH",
+    "id3": "CCH"
+  },
+  {
+    "name": "Total",
+    "cc" : 1,
+    "ccPadding" : "001",
+    "id": "TO",
+    "id3": "TOT"
   }
 ]
