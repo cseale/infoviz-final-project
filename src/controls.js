@@ -38,9 +38,6 @@ function addOptions(elementID, data, htmlKey, valueKey) {
     opt.innerHTML = `${d[htmlKey]}`;
     select.appendChild(opt);
   });
-  onUpdateHandlers[elementID].forEach(
-    handler => handler(select.options[select.selectedIndex].value),
-  );
 }
 
 function selectOption(elementID, value) {

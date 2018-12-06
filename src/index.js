@@ -15,25 +15,28 @@ import './scatterplot';
 import './stackedbarchart';
 import './pie';
 
+// controls
 import controls from './controls';
-import slider from './slider';
+import doc from './doc';
 
-let stats = [];
-let countryCode = '';
-let startYear = 1945;
-let endYear = 2008;
+// data management
+import store from './store';
 
 function handleCountryUpdate(value) {
-  countryCode = value;
-  area.updateChart(stats, countryCode);
+  store.setCountryCode(value);
+  area.updateChart();
 }
 
-function handleTimeRangeUpdate(values) {
-  [startYear, endYear] = values;
+function handleAreaChartUpdates(event) {
+  const { startYear, endYear } = event;
+  console.log('changing year', event);
+  doc.setStartYear(startYear);
+  doc.setEndYear(endYear);
+  store.setCurrentStartYear(startYear);
+  store.setCurrentEndYear(endYear);
 }
 
 // listen to controls
-slider.registerOnUpdateHandlers(handleTimeRangeUpdate);
 controls.registerOnUpdateEventHandlers(controls.COUNTRY_SELECT_ID, handleCountryUpdate);
 
 // listen to map clicks
@@ -41,10 +44,13 @@ controls.registerOnUpdateEventHandlers(controls.COUNTRY_SELECT_ID, handleCountry
 map.registerOnClickHandler(handleCountryUpdate);
 map.registerOnClickHandler(value => controls.selectOption(controls.COUNTRY_SELECT_ID, value));
 
+// listen to area chart
+area.registerOnUpdateHandler(handleAreaChartUpdates);
+
 api.getCountryStats().then(({ data }) => {
-  stats = data;
-  map.updateMap(stats, startYear, endYear);
-  area.updateChart(stats, countryCode, startYear, endYear);
+  store.setData(data);
+  map.updateMap();
+  area.updateChart();
 });
 
 api.getCountries().then(({ data }) => {

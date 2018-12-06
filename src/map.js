@@ -1,4 +1,5 @@
 import echarts from 'echarts';
+import store from './store';
 
 const worldMap = require('echarts/map/json/world.json');
 
@@ -6,6 +7,7 @@ echarts.registerMap('world', worldMap);
 
 let max = -Infinity;
 let min = Infinity;
+const selectedIndex = null;
 
 const onClickHanders = [];
 
@@ -51,6 +53,7 @@ const option = {
       mapType: 'world',
       roam: true,
       zoom: 5,
+      selectedMode: 'single',
       center: [7.934967, 50.774546],
       itemStyle: {
         opacity: 1,
@@ -60,6 +63,8 @@ const option = {
           label: {
             show: true,
           },
+          borderColor: 'red',
+          borderWidth: 2,
         },
       },
     },
@@ -136,13 +141,8 @@ async function playData(data) {
   }
 }
 
-function selectCountry(code) {
-  // find country in data
-  // set is value of selected to true
-}
-
 function updateMap(data) {
-  data = formatDataForMap(data);
+  data = formatDataForMap(store.getData());
   const mapData = filterMapData(data, 1980);
   defineMaxAndMins(mapData);
   renderMap(mapData);
@@ -163,7 +163,6 @@ function deregisterOnClickHandler(onClick) {
 
 export default {
   updateMap,
-  selectCountry,
   registerOnClickHandler,
   deregisterOnClickHandler,
 };
