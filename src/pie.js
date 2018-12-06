@@ -1,4 +1,5 @@
 import echarts from 'echarts';
+import store from './store';
 
 const option = {
   tooltip: {
@@ -8,11 +9,10 @@ const option = {
   legend: {
     orient: 'vertical',
     x: 'left',
-    data: ['直接访问', '邮件营销'],
+    data: ['Male', 'Female'],
   },
   series: [
     {
-      name: '访问来源',
       type: 'pie',
       radius: ['50%', '70%'],
       avoidLabelOverlap: false,
@@ -38,21 +38,42 @@ const option = {
   ],
 };
 
-const data = [
-  { value: 335, name: '直接访问' },
-  { value: 310, name: '邮件营销' },
-];
-
 // based on prepared DOM, initialize echarts instance
 const myChart = echarts.init(document.getElementById('pie'));
 // use configuration item and data specified to show chart
 myChart.setOption(option);
 
+
+function filterData(data, countryId) {
+  if (!countryId) {
+    return [];
+  }
+
+  return data
+    .filter(d => d.countryId === countryId
+      && d.year <= store.getCurrentEndYear()
+      && d.year >= store.getCurrentStartYear());
+}
+
+function calculateGenderTotals(data) {
+  let maleTotal = 0;
+  data.forEach((d) => { maleTotal += d.value; });
+
+  const femaleTotal = 500000;
+
+  return [
+    { value: maleTotal, name: 'Male' },
+    { value: femaleTotal, name: 'Female' },
+  ];
+}
+
 function render() {
+  const data = filterData(store.getData(), store.getCountryCode());
+
   myChart.setOption({
     series: [
       {
-        data,
+        data: calculateGenderTotals(data),
       },
     ],
   });

@@ -47,9 +47,7 @@ function random(seed) {
 
 function render(index) {
   const data = filterData(store.getData(),
-    store.getCountryCode(),
-    store.getCurrentStartYear(),
-    store.getCurrentEndYear());
+    store.getCountryCode());
 
   const mappedData = data.map(d => ({
     value: [d.value, random(d.value)],
