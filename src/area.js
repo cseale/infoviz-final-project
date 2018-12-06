@@ -23,6 +23,7 @@ const option = {
   },
   dataZoom: [
     {
+      type: 'slider',
       show: true,
       realtime: true,
     },
