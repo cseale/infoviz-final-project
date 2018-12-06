@@ -72,5 +72,6 @@ api.getCountryStats().then(({ data }) => {
 });
 
 api.getCountries().then(({ data }) => {
+  store.setCountries(data);
   controls.addOptions(controls.COUNTRY_SELECT_ID, data, 'countryName', 'countryId');
 });
