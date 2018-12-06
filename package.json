@@ -14,7 +14,8 @@
     "reload": "npm run delete && npm run start",
     "build": "rm -rf dist && ./node_modules/.bin/webpack --mode=development",
     "watch": "rm -rf dist && ./node_modules/.bin/webpack --mode=development --watch",
-    "dump": "elasticdump --output=http://localhost:9200/migration_total --input=./mapping.json --type=mapping && elasticdump --output=http://localhost:9200/migration_total --input=./data_latest.json --type=data"
+    "load": "elasticdump --output=http://localhost:9200/migration_total --input=./mapping.json --type=mapping && elasticdump --output=http://localhost:9200/migration_total --input=./data.json --type=data",
+    "dump": "rm -f mapping.json data.json && elasticdump --input=http://localhost:9200/migration_total --output=./mapping.json --type=mapping && elasticdump --input=http://localhost:9200/migration_total --output=./data.json --type=data"
   },
   "repository": {
     "type": "git",

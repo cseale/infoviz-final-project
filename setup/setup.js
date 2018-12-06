@@ -50,6 +50,15 @@ client.indices.create({
             },
             'inflow': {
               'properties': {
+                'total': {
+                  'type': 'integer'
+                },
+                'male': {
+                  'type': 'integer'
+                },
+                'female': {
+                  'type': 'integer'
+                },
                 'both': {
                   'properties': {
                     'female': {
@@ -120,6 +129,15 @@ client.indices.create({
             },
             'outflow': {
               'properties': {
+                'total': {
+                  'type': 'integer'
+                },
+                'male': {
+                  'type': 'integer'
+                },
+                'female': {
+                  'type': 'integer'
+                },
                 'both': {
                   'properties': {
                     'female': {
@@ -203,7 +221,11 @@ client.indices.create({
                 .trim();
 
             data[cov] = {};
-            data[cov][sex] = +json['Value'];
+            let val = +json['Value'];
+            data[cov][sex] = val;
+            data[cov].total = val;
+            data.total = val;
+            data[sex] = val;
             tasks.push({
               update: {
                 _index: 'migration_total',
@@ -229,25 +251,55 @@ client.indices.create({
                               ctx._source[params.name] = new HashMap();
                 }
                 catch (RuntimeException e) {
-                ctx._source[params.name] = new HashMap();
+                  ctx._source[params.name] = new HashMap();
                 }
-                                try {
-           if (ctx._source[params.name][params.cov] == null)
-                              ctx._source[params.name][params.cov] = new HashMap();
-                              }
-                               catch (RuntimeException e) {
+                 try {
+                  if (ctx._source[params.name][params.cov] == null)
+                  ctx._source[params.name][params.cov] = new HashMap();
+                 }catch (RuntimeException e) {
                 ctx._source[params.name][params.cov] = new HashMap();
                 }
-                                                try {
-
-                           if (ctx._source[params.name][params.cov][params.sex])
-                              ctx._source[params.name][params.cov][params.sex] = 0;
-                              }
-                                             catch (RuntimeException e) {
+                 
+                 try {
+                  if (ctx._source[params.name][params.cov][params.sex])
+                    ctx._source[params.name][params.cov][params.sex] = 0;
+                  } catch (RuntimeException e) {
                 ctx._source[params.name][params.cov][params.sex] = 0;
                 }
                               
-                          ctx._source[params.name][params.cov][params.sex] += params.param1`,
+                          ctx._source[params.name][params.cov][params.sex] += params.param1;
+                          
+                          try {
+                          if (!ctx._source[params.name].total)
+                              ctx._source[params.name].total = 0;
+                          }
+                          catch (RuntimeException e) {
+                            ctx._source[params.name].total = 0;
+                          }
+                          ctx._source[params.name].total += params.param1;
+                          
+                          if (params.sex != 'total') {
+                            try {
+                            if (!ctx._source[params.name][params.sex])
+                                ctx._source[params.name][params.sex] = 0;
+                            }
+                            catch (RuntimeException e) {
+                              ctx._source[params.name][params.sex] = 0;
+                            }
+                            ctx._source[params.name][params.sex] += params.param1;
+                            
+                            
+                            try {
+                            if (!ctx._source[params.name][params.cov].total)
+                                ctx._source[params.name][params.cov].total = 0;
+                            }
+                            catch (RuntimeException e) {
+                              ctx._source[params.name][params.cov].total = 0;
+                            }
+                            ctx._source[params.name][params.cov].total += params.param1;
+
+                          }
+                          `,
                 'lang': 'painless',
                 'params': {
                   'param1': +json['Value'],
