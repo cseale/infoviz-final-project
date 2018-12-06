@@ -13,7 +13,8 @@
     "delete": "pm2 delete frontend backend",
     "reload": "npm run delete && npm run start",
     "build": "rm -rf dist && ./node_modules/.bin/webpack --mode=development",
-    "watch": "rm -rf dist && ./node_modules/.bin/webpack --mode=development --watch"
+    "watch": "rm -rf dist && ./node_modules/.bin/webpack --mode=development --watch",
+    "dump": "elasticdump --output=http://localhost:9200/migration_total --input=./mapping.json --type=mapping && elasticdump --output=http://localhost:9200/migration_total --input=./data_latest.json --type=data"
   },
   "repository": {
     "type": "git",
