@@ -64,6 +64,8 @@ app.get('/countryStats', (req, res, next) => {
     if (!Array.isArray(associations)) {
       associations = [associations];
     }
+
+    associations = new Set(associations);
   }
   let filter = [];
   if (startYear || endYear) {
@@ -113,55 +115,20 @@ app.get('/countryStats', (req, res, next) => {
     }
 
     let ret = [];
-    let years = [],
-      countries = [],
-      elements = new Map();
     if (result.hits.total) {
-      ret = result.hits.hits.map(e => e._source);
-    }
+      ret = result.hits.hits.map(e => {
+        let s = e._source;
 
-    // if (associations) {
-    //   if (!Array.isArray(associations)) {
-    //     associations = [associations];
-    //   }
-    //
-    //   client.search({
-    //     index: associations,
-    //     type: '_doc',
-    //     size: 9999,
-    //     body: {
-    //       'query': {
-    //         'bool': {
-    //           'filter': [{
-    //             'terms': {
-    //               'countryId': countries
-    //             }
-    //           }, {
-    //             'terms': {
-    //               'year': years
-    //             }
-    //           }]
-    //         }
-    //       }
-    //     }
-    //   }, (err, result) => {
-    //     if (err) {
-    //       return next(err);
-    //     }
-    //
-    //     for (let element of result.hits.hits) {
-    //       let container = elements.get(element._source.countryId)
-    //         .get(element._source.year);
-    //       if (container) {
-    //         container.associations[element._index] = { value: element._source.value };
-    //       }
-    //     }
-    //
-    //     res.send(ret);
-    //   });
-    // } else {
-    //   res.send(ret);
-    // }
+        if (s.associations.length) {
+          console.log(e._id);
+        }
+        if (associations && s.associations.length) {
+          s.associations = s.associations.filter(e => associations.has(e.name));
+        }
+
+        return s;
+      });
+    }
 
     res.send(ret);
   });
