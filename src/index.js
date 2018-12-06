@@ -11,9 +11,9 @@ import api from './api';
 // charts
 import map from './map';
 import area from './area';
-import './scatterplot';
+import scatterplot from './scatterplot';
 import './stackedbarchart';
-import './pie';
+import pie from './pie';
 
 // controls
 import controls from './controls';
@@ -25,15 +25,24 @@ import store from './store';
 function handleCountryUpdate(value) {
   store.setCountryCode(value);
   area.updateChart();
+  pie.updateChart();
+  scatterplot.updateChart(0);
+  scatterplot.updateChart(1);
+  scatterplot.updateChart(2);
 }
 
 function handleAreaChartUpdates(event) {
   const { startYear, endYear } = event;
-  console.log('changing year', event);
   doc.setStartYear(startYear);
   doc.setEndYear(endYear);
   store.setCurrentStartYear(startYear);
   store.setCurrentEndYear(endYear);
+
+  // update all charts dependant on time
+  pie.updateChart();
+  scatterplot.updateChart(0);
+  scatterplot.updateChart(1);
+  scatterplot.updateChart(2);
 }
 
 // listen to controls
@@ -50,7 +59,6 @@ area.registerOnUpdateHandler(handleAreaChartUpdates);
 api.getCountryStats().then(({ data }) => {
   store.setData(data);
   map.updateMap();
-  area.updateChart();
 });
 
 api.getCountries().then(({ data }) => {

@@ -34,15 +34,34 @@ const option = {
           show: false,
         },
       },
-      data: [
-        { value: 335, name: '直接访问' },
-        { value: 310, name: '邮件营销' },
-      ],
     },
   ],
 };
 
+const data = [
+  { value: 335, name: '直接访问' },
+  { value: 310, name: '邮件营销' },
+];
+
 // based on prepared DOM, initialize echarts instance
-const myChart1 = echarts.init(document.getElementById('pie'));
+const myChart = echarts.init(document.getElementById('pie'));
 // use configuration item and data specified to show chart
-myChart1.setOption(option);
+myChart.setOption(option);
+
+function render() {
+  myChart.setOption({
+    series: [
+      {
+        data,
+      },
+    ],
+  });
+}
+
+function updateChart() {
+  render();
+}
+
+export default {
+  updateChart,
+};
