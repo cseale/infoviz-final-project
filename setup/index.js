@@ -157,7 +157,7 @@ function trim(s) {
 //
 // };
 //
-const loader = [
+const rowLoader = [
   {
   id: function (json) {
     return json.iso_a3 + new Date(json.date).getFullYear();
@@ -172,6 +172,24 @@ const loader = [
   },
   path: '../datasets/Big Mac Index 2011-2018/big-mac-adjusted-index.csv'
 }
+
+];
+
+const collumnLoader = [
+  {
+    id: function (json) {
+      return json.iso_a3 + new Date(json.date).getFullYear();
+    },
+    descriptor: {
+      name: function () {
+        return 'big_mac';
+      },
+      value: function (json) {
+        return Number(json.adj_price);
+      }
+    },
+    path: '../datasets/Big Mac Index 2011-2018/big-mac-adjusted-index.csv'
+  }
 
 ];
 //
@@ -397,7 +415,7 @@ const client = new elasticsearch.Client({
 
 function load() {
   console.log('LOADER CALLED');
-  for (let l of loader) {
+  for (let l of rowLoader) {
     let { descriptor, path, id, _index } = l;
 
     csv()

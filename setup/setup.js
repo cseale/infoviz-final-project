@@ -194,8 +194,7 @@ client.indices.create({
       {
         path: '../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/DEMIG-C2C-Migration-Outflow.csv',
         name: 'outflow'
-      }
-      ,
+      },
       {
         path: '../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/DEMIG-C2C-Migration-Inflow-part-a.csv',
         name: 'inflow'
@@ -210,8 +209,8 @@ client.indices.create({
         .fromFile(p.path)
         .subscribe((json) => {
           try {
-            let countryId = json['Country codes -UN based-'],
-              year = json['Year'],
+            let countryId = json['Country codes -UN based-'].trim(),
+              year = +json['Year'],
               id = countryId + year,
               data = {};
 
@@ -238,68 +237,44 @@ client.indices.create({
             let doc = {
               year,
               countryId,
-              countryName: json['COUNTRIES'],
-              countryCC: json['UN numeric code'],
+              countryName: json['COUNTRIES'].trim(),
+              countryCC: json['UN numeric code'].trim(),
               associations: []
             };
 
             let d = {
               'script': {
                 'source': `
-                try {
-                if (!ctx._source[params.name])
+                if (ctx._source[params.name] == null)
                               ctx._source[params.name] = new HashMap();
-                }
-                catch (RuntimeException e) {
-                  ctx._source[params.name] = new HashMap();
-                }
-                 try {
+                
                   if (ctx._source[params.name][params.cov] == null)
-                  ctx._source[params.name][params.cov] = new HashMap();
-                 }catch (RuntimeException e) {
-                ctx._source[params.name][params.cov] = new HashMap();
-                }
+                    ctx._source[params.name][params.cov] = new HashMap();
                  
-                 try {
-                  if (ctx._source[params.name][params.cov][params.sex])
+                  if (ctx._source[params.name][params.cov][params.sex] == null)
                     ctx._source[params.name][params.cov][params.sex] = 0;
-                  } catch (RuntimeException e) {
-                ctx._source[params.name][params.cov][params.sex] = 0;
-                }
                               
-                          ctx._source[params.name][params.cov][params.sex] += params.param1;
+                  ctx._source[params.name][params.cov][params.sex] += params.param1;
                           
-                          try {
-                          if (!ctx._source[params.name].total)
-                              ctx._source[params.name].total = 0;
-                          }
-                          catch (RuntimeException e) {
-                            ctx._source[params.name].total = 0;
-                          }
-                          ctx._source[params.name].total += params.param1;
                           
-                          if (params.sex != 'total') {
-                            try {
-                            if (!ctx._source[params.name][params.sex])
-                                ctx._source[params.name][params.sex] = 0;
-                            }
-                            catch (RuntimeException e) {
-                              ctx._source[params.name][params.sex] = 0;
-                            }
-                            ctx._source[params.name][params.sex] += params.param1;
-                            
-                            
-                            try {
-                            if (!ctx._source[params.name][params.cov].total)
-                                ctx._source[params.name][params.cov].total = 0;
-                            }
-                            catch (RuntimeException e) {
-                              ctx._source[params.name][params.cov].total = 0;
-                            }
-                            ctx._source[params.name][params.cov].total += params.param1;
+                  if (ctx._source[params.name].total == null)
+                      ctx._source[params.name].total = 0;
+                      
+                  ctx._source[params.name].total += params.param1;
+                          
+                  if (params.sex != 'total') {
+                    if (ctx._source[params.name][params.sex] == null)
+                        ctx._source[params.name][params.sex] = 0;
+                    
+                    ctx._source[params.name][params.sex] += params.param1;
+                    
+                    
+                    if (ctx._source[params.name][params.cov].total == null)
+                        ctx._source[params.name][params.cov].total = 0;
+                    
+                    ctx._source[params.name][params.cov].total += params.param1;
 
-                          }
-                          `,
+                  }`,
                 'lang': 'painless',
                 'params': {
                   'param1': +json['Value'],
@@ -312,8 +287,8 @@ client.indices.create({
               upsert: {
                 year,
                 countryId,
-                countryName: json['COUNTRIES'],
-                countryCC: json['UN numeric code'],
+                countryName: json['COUNTRIES'].trim(),
+                countryCC: json['UN numeric code'].trim(),
                 associations: []
               }
             };
