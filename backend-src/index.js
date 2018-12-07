@@ -103,48 +103,50 @@ app.get('/countryStats', (req, res, next) => {
   }
   let ret = [];
 
-  get(0);
 
-  function get(index) {
-    client.search({
-      index: 'migration_total',
-      type: '_doc',
-      body: {
-        // 'sort': {
-        //   'year': {
-        //     'contryId': 'asc',
-        //     'order': 'desc'
-        //   }
-        // },
-        from: index,
-        'size': 10000,
-        query
-      }
-    }, (err, result) => {
-      if (err) {
-        return next(err);
-      }
+  client.search({
+    index: 'migration_total',
+    type: '_doc',
+    scroll: '1m',
+    body: {
+      // 'sort': {
+      //   'year': {
+      //     'contryId': 'asc',
+      //     'order': 'desc'
+      //   }
+      // },
+      'size': 10000,
+      query
+    }
+  }, processResults);
 
-      if (result.hits.total) {
-        ret = result.hits.hits.map(e => {
-          let s = e._source;
+  function processResults(err, result) {
+    if (err) {
+      return next(err);
+    }
 
-          if (associations && s.associations.length) {
-            s.associations = s.associations.filter(e => associations.has(e.name));
-          }
+    let { _scroll_id } = result;
+    if (result.hits.total) {
+      result.hits.hits.forEach(e => {
+        let s = e._source;
 
-          return s;
-        });
-      }
+        if (associations && s.associations.length) {
+          s.associations = s.associations.filter(e => associations.has(e.name));
+        }
 
-      if (result.hits.total < ret.length) {
-        get(ret.length);
-      } else {
-        res.send(ret);
-      }
-    });
+        ret.push(s);
+      });
+    }
+
+    if (ret.length < result.hits.total) {
+      client.scroll({
+        scroll: '1m',
+        scrollId: _scroll_id
+      }, processResults);
+    } else {
+      res.send(ret);
+    }
   }
-
 });
 
 app.listen(port, () => console.log(`App listening on port ${port}!`));
