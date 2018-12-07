@@ -2,6 +2,7 @@ const MAX_YEAR = 2015;
 const MIN_YEAR = 1930;
 
 let data = [];
+let countries = [];
 let countryCode = '';
 let flowType = 'inflow';
 let currentStartYear = MIN_YEAR;
@@ -25,6 +26,14 @@ function getData() {
   return data;
 }
 
+function getCountries() {
+  return countries;
+}
+
+function setCountries(c) {
+  countries = c;
+}
+
 function setFlowType(ft) {
   flowType = ft;
 }
@@ -40,7 +49,6 @@ function getCurrentStartYear() {
 function getCurrentEndYear() {
   return currentEndYear;
 }
-
 
 function getCurrentMinYear() {
   return currentMinYear;
@@ -69,6 +77,8 @@ function setCurrentMaxYear() {
 export default {
   getCountryCode,
   setCountryCode,
+  getCountries,
+  setCountries,
   getData,
   setData,
   getFlowType,

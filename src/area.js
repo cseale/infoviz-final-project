@@ -1,5 +1,6 @@
 
 import echarts from 'echarts';
+import _ from 'lodash';
 
 import store from './store';
 
@@ -37,10 +38,7 @@ const option = {
 const myChart = echarts.init(document.getElementById('area'));
 const onRangeUpdated = [];
 
-// use configuration item and data specified to show chart
-myChart.setOption(option);
-
-myChart.on('datazoom', (event) => {
+function onDatazoom(event) {
   function convertPercentageToYear(percentage, roundingFn) {
     return roundingFn((percentage / 100)
     * (store.getCurrentMaxYear() - store.getCurrentMinYear()) + store.getCurrentMinYear());
@@ -48,9 +46,9 @@ myChart.on('datazoom', (event) => {
 
   const startYear = convertPercentageToYear(event.start, Math.ceil);
   const endYear = convertPercentageToYear(event.end, Math.floor);
-  onRangeUpdated.forEach(handler => handler({ startYear, endYear }));
-});
 
+  onRangeUpdated.forEach(handler => handler({ startYear, endYear }));
+}
 
 function convertYearToPercentage(year) {
   const value = (year - store.getCurrentMinYear()) / (store.getCurrentMaxYear()
@@ -69,10 +67,10 @@ function extractMinAndMaxYear(data) {
   let max = -Infinity;
   data.forEach((d) => {
     if (d.year < min) {
-      min = d.year;
+      min = Number(d.year);
     }
     if (d.year > max) {
-      max = d.year;
+      max = Number(d.year);
     }
   });
   store.setCurrentMaxYear(max);
@@ -105,11 +103,8 @@ function renderChart(data) {
     series: [
       {
         data: years.map((y) => {
-          const values = data.filter(d => d.year === y);
-          // assign value here
-          // ...
-          // ...
-          return values ? values[0] : 0;
+          const values = data.filter(d => Number(d.year) === y);
+          return values ? _.get(values, `[0].${store.getFlowType()}.total`, 0) : 0;
         }),
       },
     ],
@@ -142,6 +137,11 @@ function deregisterOnUpdateHandler(onUpdate) {
     onRangeUpdated.splice(index, 1);
   }
 }
+
+// use configuration item and data specified to show chart
+myChart.setOption(option);
+
+myChart.on('datazoom', _.debounce(onDatazoom, 150, { maxWait: 1000 }), 150);
 
 export default {
   updateChart,

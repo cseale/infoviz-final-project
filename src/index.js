@@ -10,10 +10,10 @@ import api from './api';
 
 // charts
 import map from './map';
-// import area from './area';
-// import scatterplot from './scatterplot';
+import area from './area';
+import scatterplot from './scatterplot';
 // import './stackedbarchart';
-// import pie from './pie';
+import pie from './pie';
 
 // controls
 import controls from './controls';
@@ -24,21 +24,21 @@ import store from './store';
 
 function handleCountryUpdate(value) {
   store.setCountryCode(value);
-  // area.updateChart();
-  // pie.updateChart();
-  // scatterplot.updateChart(0);
-  // scatterplot.updateChart(1);
-  // scatterplot.updateChart(2);
+  area.updateChart();
+  pie.updateChart();
+  scatterplot.updateChart(0);
+  scatterplot.updateChart(1);
+  scatterplot.updateChart(2);
 }
 
 function handleMeasureUpdate(value) {
   store.setFlowType(value);
   map.updateMap();
-  // area.updateChart();
-  // pie.updateChart();
-  // scatterplot.updateChart(0);
-  // scatterplot.updateChart(1);
-  // scatterplot.updateChart(2);
+  area.updateChart();
+  pie.updateChart();
+  scatterplot.updateChart(0);
+  scatterplot.updateChart(1);
+  scatterplot.updateChart(2);
 }
 
 function handleAreaChartUpdates(event) {
@@ -49,10 +49,11 @@ function handleAreaChartUpdates(event) {
   store.setCurrentEndYear(endYear);
 
   // update all charts dependant on time
-  // pie.updateChart();
-  // scatterplot.updateChart(0);
-  // scatterplot.updateChart(1);
-  // scatterplot.updateChart(2);
+  map.updateMap();
+  pie.updateChart();
+  scatterplot.updateChart(0);
+  scatterplot.updateChart(1);
+  scatterplot.updateChart(2);
 }
 
 // listen to controls
@@ -64,7 +65,7 @@ map.registerOnClickHandler(handleCountryUpdate);
 map.registerOnClickHandler(value => controls.selectOption(controls.COUNTRY_SELECT_ID, value));
 
 // listen to area chart
-// area.registerOnUpdateHandler(handleAreaChartUpdates);
+area.registerOnUpdateHandler(handleAreaChartUpdates);
 
 api.getCountryStats().then(({ data }) => {
   store.setData(data);
@@ -72,5 +73,6 @@ api.getCountryStats().then(({ data }) => {
 });
 
 api.getCountries().then(({ data }) => {
+  store.setCountries(data);
   controls.addOptions(controls.COUNTRY_SELECT_ID, data, 'countryName', 'countryId');
 });
