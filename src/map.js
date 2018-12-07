@@ -112,7 +112,8 @@ function formatCountryName(name) {
 }
 
 function formatDataForMap(data) {
-  const countries = store.getCountries();
+  const countries = store.getCountries()
+    .filter(c => c.countryId !== 'TOT' && !c.countryName.includes('AGG') && !c.countryName.includes('OTH'));
   countries.forEach((country) => {
     country.name = formatCountryName(country.countryName);
     let total = 0;

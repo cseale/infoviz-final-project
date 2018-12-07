@@ -1,6 +1,7 @@
 // bootstrap
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import * as splashScreen from 'splash-screen';
 
 // styles
 import '../styles.css';
@@ -19,6 +20,7 @@ import pie from './pie';
 import controls from './controls';
 import doc from './doc';
 
+
 // data management
 import store from './store';
 
@@ -32,6 +34,7 @@ function handleCountryUpdate(value) {
 }
 
 function handleMeasureUpdate(value) {
+  doc.setFlowType(value);
   store.setFlowType(value);
   map.updateMap();
   area.updateChart();
@@ -68,6 +71,7 @@ map.registerOnClickHandler(value => controls.selectOption(controls.COUNTRY_SELEC
 area.registerOnUpdateHandler(handleAreaChartUpdates);
 
 api.getCountryStats().then(({ data }) => {
+  splashScreen.destroy();
   store.setData(data);
   map.updateMap();
 });
@@ -76,3 +80,5 @@ api.getCountries().then(({ data }) => {
   store.setCountries(data);
   controls.addOptions(controls.COUNTRY_SELECT_ID, data, 'countryName', 'countryId');
 });
+
+splashScreen.enable('audio-wave');

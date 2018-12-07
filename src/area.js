@@ -26,7 +26,7 @@ const option = {
     {
       type: 'slider',
       show: true,
-      realtime: true,
+      realtime: false,
     },
   ],
   series: [{
@@ -112,9 +112,8 @@ function renderChart(data) {
 
   myChart.dispatchAction({
     type: 'dataZoom',
-    start: convertYearToPercentage(store.getCurrentMinYear()),
-    // data value at ending location
-    end: convertYearToPercentage(store.getCurrentMaxYear()),
+    start: convertYearToPercentage(store.getCurrentStartYear()),
+    end: convertYearToPercentage(store.getCurrentEndYear()),
   });
 }
 

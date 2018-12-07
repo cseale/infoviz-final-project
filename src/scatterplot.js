@@ -57,8 +57,6 @@ function render(index) {
       ? {} : { color: 'grey', opacity: 0.3 },
   }));
 
-  console.log(mappedData);
-
   myChart[index].setOption({
     series: [
       {

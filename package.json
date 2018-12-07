@@ -64,6 +64,7 @@
     "nouislider": "^12.1.0",
     "pm2": "^3.2.2",
     "popper.js": "^1.14.5",
+    "splash-screen": "^4.0.1",
     "topojson": "^3.0.2",
     "wnumb": "^1.1.0"
   }
