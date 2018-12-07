@@ -101,37 +101,50 @@ app.get('/countryStats', (req, res, next) => {
       }
     };
   }
+  let ret = [];
 
-  client.search({
-    index: 'migration_total',
-    type: '_doc',
-    body: {
-      'size': 9999,
-      query
-    }
-  }, (err, result) => {
-    if (err) {
-      return next(err);
-    }
+  get(0);
 
-    let ret = [];
-    if (result.hits.total) {
-      ret = result.hits.hits.map(e => {
-        let s = e._source;
+  function get(index) {
+    client.search({
+      index: 'migration_total',
+      type: '_doc',
+      body: {
+        // 'sort': {
+        //   'year': {
+        //     'contryId': 'asc',
+        //     'order': 'desc'
+        //   }
+        // },
+        from: index,
+        'size': 10000,
+        query
+      }
+    }, (err, result) => {
+      if (err) {
+        return next(err);
+      }
 
-        if (s.associations.length) {
-          console.log(e._id);
-        }
-        if (associations && s.associations.length) {
-          s.associations = s.associations.filter(e => associations.has(e.name));
-        }
+      if (result.hits.total) {
+        ret = result.hits.hits.map(e => {
+          let s = e._source;
 
-        return s;
-      });
-    }
+          if (associations && s.associations.length) {
+            s.associations = s.associations.filter(e => associations.has(e.name));
+          }
 
-    res.send(ret);
-  });
+          return s;
+        });
+      }
+
+      if (result.hits.total < ret.length) {
+        get(ret.length);
+      } else {
+        res.send(ret);
+      }
+    });
+  }
+
 });
 
 app.listen(port, () => console.log(`App listening on port ${port}!`));
