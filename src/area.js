@@ -22,6 +22,12 @@ const option = {
       show: true,
     },
   },
+  tooltip: {
+    trigger: 'item',
+    formatter(params) {
+      return `${store.getCountryCode()} - ${params.name}: ${params.data}`;
+    },
+  },
   dataZoom: [
     {
       type: 'slider',

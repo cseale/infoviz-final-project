@@ -17,6 +17,13 @@ const option = {
     name: 'Flow',
   },
   yAxis: {},
+  tooltip: {
+    trigger: 'item',
+    formatter(params) {
+      console.log(params);
+      return `${store.getCountryCode()} - ${params.data.value[2]}<br/>${store.getFlowType()}: ${params.data.value[0]}<br/>GDP: ${params.data.value[1]}`;
+    },
+  },
   series: [{
     symbolSize: 20,
     type: 'scatter',
@@ -51,7 +58,7 @@ function render(index) {
 
 
   const mappedData = data.map(d => ({
-    value: [_.get(d, `${store.getFlowType()}.total`, 0), random(_.get(d, `${store.getFlowType()}.total`, 0))],
+    value: [_.get(d, `${store.getFlowType()}.total`, 0), random(_.get(d, `${store.getFlowType()}.total`, 0)), d.year],
     itemStyle: Number(d.year) >= store.getCurrentStartYear()
     && Number(d.year) <= store.getCurrentEndYear()
       ? {} : { color: 'grey', opacity: 0.3 },
