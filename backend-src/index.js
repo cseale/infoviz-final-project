@@ -130,9 +130,17 @@ app.get('/countryStats', (req, res, next) => {
       result.hits.hits.forEach(e => {
         let s = e._source;
 
-        if (associations && s.associations.length) {
-          s.associations = s.associations.filter(e => associations.has(e.name));
+        let res = {};
+        if (s.associations.length) {
+          s.associations.forEach(e => {
+              if (!associations || associations.has(e.name)) {
+                res[e.name] = e.value;
+              }
+            }
+          );
         }
+
+        s.associations = res;
 
         ret.push(s);
       });
