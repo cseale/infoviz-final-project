@@ -1,5 +1,6 @@
 import echarts from 'echarts';
 import _ from 'lodash';
+
 import store from './store';
 
 // based on prepared DOM, initialize echarts instance
@@ -20,8 +21,7 @@ const option = {
   tooltip: {
     trigger: 'item',
     formatter(params) {
-      console.log(params);
-      return `${store.getCountryCode()} - ${params.data.value[2]}<br/>${store.getFlowType()}: ${params.data.value[0]}<br/>GDP: ${params.data.value[1]}`;
+      return `${store.getCountryCode()} - ${params.data.value[2]}<br/>${store.getFlowType()}: ${params.data.value[0]}<br/>${params.data.value[3]}: ${params.data.value[1]}`;
     },
   },
   series: [{
@@ -47,24 +47,31 @@ function filterData(data, countryId) {
     .sort((a, b) => a.year - b.year);
 }
 
-function random(seed) {
-  const x = Math.sin(seed) * 10000;
-  return x - Math.floor(x);
-}
-
-function render(index) {
+function render(index, key) {
   const data = filterData(store.getData(),
     store.getCountryCode());
 
 
-  const mappedData = data.map(d => ({
-    value: [_.get(d, `${store.getFlowType()}.total`, 0), random(_.get(d, `${store.getFlowType()}.total`, 0)), d.year],
-    itemStyle: Number(d.year) >= store.getCurrentStartYear()
+  const mappedData = data
+    .filter(d => _.isNumber(d.associations[key]) && d.associations[key] > 0)
+    .map(d => ({
+      value: [_.get(d, `${store.getFlowType()}.total`, 0), _.get(d, `associations[${key}]`, 0), d.year, key],
+      itemStyle: Number(d.year) >= store.getCurrentStartYear()
     && Number(d.year) <= store.getCurrentEndYear()
-      ? {} : { color: 'grey', opacity: 0.3 },
-  }));
+        ? {} : { color: 'grey', opacity: 0.3 },
+    }));
 
   myChart[index].setOption({
+    title: {
+      show: true,
+      text: `${store.getFlowType()} vs ${key}`,
+      textStyle: {
+        fontSize: 14,
+      },
+    },
+    yAxis: {
+      name: key,
+    },
     series: [
       {
         data: mappedData,
@@ -73,8 +80,8 @@ function render(index) {
   });
 }
 
-function updateChart(index) {
-  render(index);
+function updateChart(index, key) {
+  render(index, key);
 }
 
 export default {

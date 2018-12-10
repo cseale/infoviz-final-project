@@ -23,14 +23,14 @@ import doc from './doc';
 
 // data management
 import store from './store';
+import { HOMICIDES, DEVELOPMENT_ASSISTANCE } from './constants';
 
 function handleCountryUpdate(value) {
   store.setCountryCode(value);
   area.updateChart();
   pie.updateChart();
-  scatterplot.updateChart(0);
-  scatterplot.updateChart(1);
-  scatterplot.updateChart(2);
+  scatterplot.updateChart(0, HOMICIDES);
+  scatterplot.updateChart(1, DEVELOPMENT_ASSISTANCE);
 }
 
 function handleMeasureUpdate(value) {
@@ -39,9 +39,8 @@ function handleMeasureUpdate(value) {
   map.updateMap();
   area.updateChart();
   pie.updateChart();
-  scatterplot.updateChart(0);
-  scatterplot.updateChart(1);
-  scatterplot.updateChart(2);
+  scatterplot.updateChart(0, HOMICIDES);
+  scatterplot.updateChart(1, DEVELOPMENT_ASSISTANCE);
 }
 
 function handleAreaChartUpdates(event) {
@@ -54,9 +53,8 @@ function handleAreaChartUpdates(event) {
   // update all charts dependant on time
   map.updateMap();
   pie.updateChart();
-  scatterplot.updateChart(0);
-  scatterplot.updateChart(1);
-  scatterplot.updateChart(2);
+  scatterplot.updateChart(0, HOMICIDES);
+  scatterplot.updateChart(1, DEVELOPMENT_ASSISTANCE);
 }
 
 // listen to controls
@@ -71,6 +69,8 @@ map.registerOnClickHandler(value => controls.selectOption(controls.COUNTRY_SELEC
 area.registerOnUpdateHandler(handleAreaChartUpdates);
 
 api.getCountryStats().then(({ data }) => {
+  console.log(data.filter(d => _.isObject(d.associations) && Object.keys(d.associations).length !== 0));
+
   splashScreen.destroy();
   store.setData(data);
   map.updateMap();

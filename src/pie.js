@@ -61,7 +61,6 @@ function calculateGenderTotals(data) {
   let maleTotal = 0;
   let femaleTotal = 0;
   let totalTotal = 0;
-  console.log(data);
   data.forEach((d) => {
     maleTotal += _.get(d, `${store.getFlowType()}.male`, 0);
     femaleTotal += _.get(d, `${store.getFlowType()}.female`, 0);
