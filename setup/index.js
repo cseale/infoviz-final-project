@@ -44,37 +44,58 @@ function trim(s) {
 }
 
 const rowLoader = [
-  {
-  id: function (json) {
-    return json.iso_a3 + new Date(json.date).getFullYear();
-  },
-  descriptor: {
-    name: function () {
-      return 'big_mac';
-    },
-    value: function (json) {
-      return Number(json.adj_price);
-    }
-  },
-  path: '../datasets/Big Mac Index 2011-2018/big-mac-adjusted-index.csv'
-}
+  // {
+  //   id: function (json) {
+  //     return json.iso_a3 + new Date(json.date).getFullYear();
+  //   },
+  //   descriptor: {
+  //     name: function () {
+  //       return 'big_mac';
+  //     },
+  //     value: function (json) {
+  //       return Number(json.adj_price);
+  //     }
+  //   },
+  //   path: '../datasets/Big Mac Index 2011-2018/big-mac-adjusted-index.csv'
+  // }
 
 ];
 
-const collumnLoader = [
+const columnLoader = [
+  // {
+  //   id: function (json,  index) {
+  //     return json['Country Code'] + index;
+  //   },
+  //   descriptor: {
+  //     name: function () {
+  //       return 'development_assistance';
+  //     }
+  //   },
+  //   start: 1960,
+  //   incr: (n) => {
+  //     let ret = +n + 1;
+  //
+  //     return ret > 2017 ? null : ret;
+  //   },
+  //   path: '../datasets/Net Development Assistance and Official Aid Recieved 1960-2015/API_DT.ODA.ALLD.CD_DS2_en_csv_v2_10227906.csv'
+  // },
+
   {
-    id: function (json) {
-      return json.iso_a3 + new Date(json.date).getFullYear();
+    id: function (json, index) {
+      return json['Country Code'] + index;
     },
     descriptor: {
       name: function () {
-        return 'big_mac';
-      },
-      value: function (json) {
-        return Number(json.adj_price);
+        return 'percent_labour_force_female';
       }
     },
-    path: '../datasets/Big Mac Index 2011-2018/big-mac-adjusted-index.csv'
+    start: 1960,
+    incr: (n) => {
+      let ret = +n + 1;
+
+      return ret > 2017 ? null : ret;
+    },
+    path: '../datasets/Labour Force % Women/API_SL.TLF.TOTL.FE.ZS_DS2_en_csv_v2_10227160.csv'
   }
 
 ];
@@ -123,6 +144,50 @@ function load() {
         });
       });
   }
+
+  for (let l of columnLoader) {
+    let { descriptor, path, id, start, incr } = l;
+
+    csv()
+      .fromFile(path)
+      .subscribe((json) => {
+        let index = start;
+
+        do {
+          let value = json[index];
+          if (!value) {
+            continue;
+          }
+          tasks.push({
+            update: {
+              _index: 'migration_total',
+              _type: '_doc',
+              _id: id(json, index)
+            }
+          });
+          tasks.push({
+            'script': {
+              'source': `
+                      if (ctx._source.associations == null)
+                  ctx._source.associations = [];
+
+                  ctx._source.associations.add(params.associations);
+                  `,
+              'params': {
+                'associations':
+                  {
+                    'name': descriptor.name(json),
+                    'value': typeof descriptor.value == 'function' ? descriptor.value(value) : +value
+                  }
+
+              }
+            }
+          });
+        } while ((index = incr(index)) != null);
+
+      });
+  }
+
   startWorkers();
 }
 
@@ -144,6 +209,11 @@ function bulkThread() {
   let body = tasks.splice(0, 300);
   if (body.length) {
     times = 0;
+    // console.log(require('util')
+    //   .inspect(body, {
+    //     depth: null,
+    //     colors: true
+    //   }));
     client.bulk({ body }, function (err, response) {
       if (err) {
         console.error(err);
