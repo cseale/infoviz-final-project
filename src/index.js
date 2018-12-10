@@ -75,9 +75,9 @@ function handleAreaChartUpdates(event) {
  */
 
 api.getCountryStats().then(({ data }) => {
-  splashScreen.destroy();
   store.setData(data);
   map.updateMap();
+  splashScreen.destroy();
 });
 
 api.getCountries().then(({ data }) => {

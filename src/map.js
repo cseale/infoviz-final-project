@@ -55,7 +55,6 @@ const option = {
       mapType: 'world',
       roam: true,
       zoom: 5,
-      selectedMode: 'single',
       center: [7.934967, 50.774546],
       itemStyle: {
         opacity: 1,
@@ -124,13 +123,8 @@ function formatDataForMap(data) {
       });
 
     country.value = total;
+    country.selected = country.countryId === store.getCountryCode();
   });
-  // data.forEach((d) => {
-  //   d.code = d.countryId;
-  //   d.name = formatCountryName(d.countryName);
-  //   // assign value here
-  //   d.value = _.get(d, `${store.getFlowType()}.total`, 0);
-  // });
   return countries;
 }
 
@@ -154,20 +148,10 @@ function renderMap(data) {
   });
 }
 
-const sleep = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
-
-async function playData(data) {
-  for (let i = 1981; i < 2008; i += 1) {
-    await sleep(1000);
-    renderMap(filterMapData(data, i));
-  }
-}
-
 function updateMap() {
   const mapData = formatDataForMap(filterMapData(store.getData()));
   defineMaxAndMins(mapData);
   renderMap(mapData);
-  // playData(data);
 }
 
 function registerOnClickHandler(onClick) {

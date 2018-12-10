@@ -49,7 +49,6 @@ function filterData(data, countryId) {
 
 function render(index) {
   const key = store[`getFactor${index}`]();
-  console.log('rendering chart: ', index, key);
   const data = filterData(store.getData(),
     store.getCountryCode());
 
