@@ -4,13 +4,18 @@ import 'bootstrap-select/dist/css/bootstrap-select.css';
 
 const COUNTRY_SELECT_ID = 'countrySelect';
 const MEASURE_SELECT_ID = 'measureSelect';
-const FACTOR_SELECT_ID = 'factorSelect';
+const FACTOR0_SELECT_ID = 'factor0Select';
+const FACTOR1_SELECT_ID = 'factor1Select';
+const FACTOR2_SELECT_ID = 'factor2Select';
+const FACTOR_CONTROL_IDS = [FACTOR0_SELECT_ID, FACTOR1_SELECT_ID, FACTOR2_SELECT_ID];
 
 
 const onUpdateHandlers = {
   countrySelect: [],
   measureSelect: [],
-  factorSelect: [],
+  factor0Select: [],
+  factor1Select: [],
+  factor2Select: [],
 };
 
 function sortAlphabetically(data, key) {
@@ -24,7 +29,11 @@ function sortAlphabetically(data, key) {
 }
 
 function listenForOnUpdateEvents() {
-  [COUNTRY_SELECT_ID, MEASURE_SELECT_ID].forEach((id) => {
+  [COUNTRY_SELECT_ID,
+    MEASURE_SELECT_ID,
+    FACTOR0_SELECT_ID,
+    FACTOR1_SELECT_ID,
+    FACTOR2_SELECT_ID].forEach((id) => {
     const select = document.getElementById(id);
     select.onchange = (value) => {
       onUpdateHandlers[id].forEach(handler => handler(value.target.value));
@@ -62,7 +71,10 @@ function deregisterOnUpdateEventHandlers(id, onUpdate) {
 export default {
   COUNTRY_SELECT_ID,
   MEASURE_SELECT_ID,
-  FACTOR_SELECT_ID,
+  FACTOR0_SELECT_ID,
+  FACTOR1_SELECT_ID,
+  FACTOR2_SELECT_ID,
+  FACTOR_CONTROL_IDS,
   addOptions,
   deregisterOnUpdateEventHandlers,
   registerOnUpdateEventHandlers,

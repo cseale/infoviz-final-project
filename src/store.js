@@ -1,3 +1,5 @@
+import { GDP_GROWTH, DEVELOPMENT_ASSISTANCE, HOMICIDES } from './constants';
+
 const MAX_YEAR = 2015;
 const MIN_YEAR = 1930;
 
@@ -7,8 +9,11 @@ let countryCode = '';
 let flowType = 'inflow';
 let currentStartYear = MIN_YEAR;
 let currentEndYear = MAX_YEAR;
-const currentMinYear = MIN_YEAR;
-const currentMaxYear = MAX_YEAR;
+let currentMinYear = MIN_YEAR;
+let currentMaxYear = MAX_YEAR;
+let factor0 = GDP_GROWTH;
+let factor1 = DEVELOPMENT_ASSISTANCE;
+let factor2 = HOMICIDES;
 
 function getCountryCode() {
   return countryCode;
@@ -66,12 +71,36 @@ function setCurrentEndYear(year) {
   currentEndYear = year;
 }
 
-function setCurrentMinYear() {
-  return currentMinYear;
+function setCurrentMinYear(year) {
+  currentMinYear = year;
 }
 
-function setCurrentMaxYear() {
-  return currentEndYear;
+function setCurrentMaxYear(year) {
+  currentMaxYear = year;
+}
+
+function getFactor1() {
+  return factor1;
+}
+
+function setFactor1(factor) {
+  factor1 = factor;
+}
+
+function getFactor2() {
+  return factor2;
+}
+
+function setFactor2(factor) {
+  factor2 = factor;
+}
+
+function getFactor0() {
+  return factor0;
+}
+
+function setFactor0(factor) {
+  factor0 = factor;
 }
 
 export default {
@@ -81,6 +110,12 @@ export default {
   setCountries,
   getData,
   setData,
+  getFactor1,
+  setFactor1,
+  getFactor2,
+  setFactor2,
+  getFactor0,
+  setFactor0,
   getFlowType,
   setFlowType,
   getCurrentEndYear,

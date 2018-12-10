@@ -47,7 +47,9 @@ function filterData(data, countryId) {
     .sort((a, b) => a.year - b.year);
 }
 
-function render(index, key) {
+function render(index) {
+  const key = store[`getFactor${index}`]();
+  console.log('rendering chart: ', index, key);
   const data = filterData(store.getData(),
     store.getCountryCode());
 
@@ -80,8 +82,8 @@ function render(index, key) {
   });
 }
 
-function updateChart(index, key) {
-  render(index, key);
+function updateChart(index) {
+  render(index);
 }
 
 export default {
