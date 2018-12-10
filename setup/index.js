@@ -79,23 +79,41 @@ const columnLoader = [
   //   },
   //   path: '../datasets/Net Development Assistance and Official Aid Recieved 1960-2015/API_DT.ODA.ALLD.CD_DS2_en_csv_v2_10227906.csv'
   // },
-
+  //
+  // {
+  //   id: function (json, index) {
+  //     return json['Country Code'] + index;
+  //   },
+  //   descriptor: {
+  //     name: function () {
+  //       return 'percent_labour_force_female';
+  //     }
+  //   },
+  //   start: 1960,
+  //   incr: (n) => {
+  //     let ret = +n + 1;
+  //
+  //     return ret > 2017 ? null : ret;
+  //   },
+  //   path: '../datasets/Labour Force % Women/API_SL.TLF.TOTL.FE.ZS_DS2_en_csv_v2_10227160.csv'
+  // }
+  // ,
   {
     id: function (json, index) {
       return json['Country Code'] + index;
     },
     descriptor: {
-      name: function () {
-        return 'percent_labour_force_female';
+      name: function (json) {
+        return json['Indicator Name'];
       }
     },
-    start: 1960,
+    start: 1990,
     incr: (n) => {
       let ret = +n + 1;
 
       return ret > 2017 ? null : ret;
     },
-    path: '../datasets/Labour Force % Women/API_SL.TLF.TOTL.FE.ZS_DS2_en_csv_v2_10227160.csv'
+    path: '../datasets/SDG_csv/SDGData.csv'
   }
 
 ];
