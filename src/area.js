@@ -192,6 +192,7 @@ function renderChart(data) {
 
   myChart.dispatchAction({
     type: 'dataZoom',
+    dataZoomIndex: 0,
     start: convertYearToPercentage(store.getCurrentStartYear()),
     end: convertYearToPercentage(store.getCurrentEndYear()),
   });
