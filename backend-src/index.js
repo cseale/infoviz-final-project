@@ -58,7 +58,7 @@ app.get('/countries', (req, res, next) => {
 });
 
 app.get('/countryStats', (req, res, next) => {
-  let { startYear, endYear, isoCode, associations } = req.query;
+  let { startYear, endYear, isoCode, associations, reportingCountry } = req.query;
 
   if (associations) {
     if (!Array.isArray(associations)) {
@@ -102,12 +102,17 @@ app.get('/countryStats', (req, res, next) => {
     };
   }
   let ret = [];
+  let _sourceExclude;
+  if (!reportingCountry) {
+    _sourceExclude = "reportingCountry";
+  }
 
 
   client.search({
     index: 'migration_total',
     type: '_doc',
     scroll: '1m',
+    _sourceExclude,
     body: {
       // 'sort': {
       //   'year': {
