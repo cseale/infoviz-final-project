@@ -26,7 +26,7 @@ import doc from './doc';
 // data management
 import store from './store';
 import {
-  HOMICIDES, DEVELOPMENT_ASSISTANCE, FACTORS, GDP_PER_CAPITA,
+  HOMICIDES, EXPORTS, FACTORS, GDP_PER_CAPITA,
 } from './constants';
 
 /**
@@ -96,13 +96,13 @@ api.getCountries().then(({ data }) => {
  * Control Setup
  */
 controls.addOptions(controls.FACTOR0_SELECT_ID, FACTORS, 'name', 'name');
-controls.selectOption(controls.FACTOR0_SELECT_ID, GDP_PER_CAPITA);
+controls.selectOption(controls.FACTOR0_SELECT_ID, store.getFactor0());
 
 controls.addOptions(controls.FACTOR1_SELECT_ID, FACTORS, 'name', 'name');
-controls.selectOption(controls.FACTOR1_SELECT_ID, DEVELOPMENT_ASSISTANCE);
+controls.selectOption(controls.FACTOR1_SELECT_ID, store.getFactor1());
 
 controls.addOptions(controls.FACTOR2_SELECT_ID, FACTORS, 'name', 'name');
-controls.selectOption(controls.FACTOR2_SELECT_ID, HOMICIDES);
+controls.selectOption(controls.FACTOR2_SELECT_ID, store.getFactor2());
 
 /**
  * Register Listeners

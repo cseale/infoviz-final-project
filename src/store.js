@@ -1,4 +1,4 @@
-import { GDP_GROWTH, DEVELOPMENT_ASSISTANCE, HOMICIDES } from './constants';
+import { GDP_GROWTH, EXPORTS, HOMICIDES } from './constants';
 
 const MAX_YEAR = 2015;
 const MIN_YEAR = 1930;
@@ -13,7 +13,7 @@ let currentEndYear = MAX_YEAR;
 let currentMinYear = MIN_YEAR;
 let currentMaxYear = MAX_YEAR;
 let factor0 = GDP_GROWTH;
-let factor1 = DEVELOPMENT_ASSISTANCE;
+let factor1 = EXPORTS;
 let factor2 = HOMICIDES;
 
 function getCountryCode() {

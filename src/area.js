@@ -19,7 +19,7 @@ const option = {
   //   },
   // },
   legend: {
-    data: ['Unknown'],
+    data: [],
   },
   xAxis: {
     type: 'category',
@@ -45,6 +45,7 @@ const option = {
       type: 'slider',
       show: true,
       realtime: false,
+      showDataShadow: 'Unknown',
     },
     {
       id: 'range',
@@ -116,7 +117,7 @@ function mapDataToSeries(data) {
   const countrySeries = reportingCountryKeys.map(country => ({
     name: country,
     type: 'line',
-    stack: 'Country',
+    // stack: 'Country',
     areaStyle: {},
     data: years.map((y) => {
       let value = data.find(d => Number(d.year) === y);
@@ -130,7 +131,7 @@ function mapDataToSeries(data) {
     {
       name: 'Unknown',
       type: 'line',
-      stack: 'Country',
+      // stack: 'Country',
       areaStyle: {},
       data: years.map((y) => {
         let value = data.find(d => Number(d.year) === y);
@@ -141,7 +142,7 @@ function mapDataToSeries(data) {
   ];
   reportingCountryKeys.push('Unknown');
 
-  return [countrySeries.concat(unknownSeries), reportingCountryKeys];
+  return [unknownSeries.concat(countrySeries), reportingCountryKeys];
 }
 
 function extractMinAndMaxYear(data) {
@@ -207,7 +208,7 @@ function updateChart() {
 }
 
 function registerOnUpdateHandler(onUpdate) {
-  onRangeUpdated.push(onUpdate);
+  onRangeUpdated.unshift(onUpdate);
   return onUpdate;
 }
 
