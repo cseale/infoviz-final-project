@@ -4,6 +4,7 @@ const MAX_YEAR = 2015;
 const MIN_YEAR = 1930;
 
 let data = [];
+let selectedCountryData = [];
 let countries = [];
 let countryCode = '';
 let flowType = 'inflow';
@@ -29,6 +30,14 @@ function setData(d) {
 
 function getData() {
   return data;
+}
+
+function getSelectedCountryData() {
+  return selectedCountryData;
+}
+
+function setSelectedCountryData(d) {
+  selectedCountryData = d;
 }
 
 function getCountries() {
@@ -126,4 +135,6 @@ export default {
   setCurrentMinYear,
   getCurrentStartYear,
   setCurrentStartYear,
+  getSelectedCountryData,
+  setSelectedCountryData,
 };

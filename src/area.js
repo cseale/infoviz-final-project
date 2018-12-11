@@ -3,13 +3,17 @@ import echarts from 'echarts';
 import _ from 'lodash';
 
 import store from './store';
+import { DIVERGING_THEME } from './constants';
 
 const option = {
   grid: {
     left: 60,
-    top: 8,
-    right: 40,
+    top: 60,
+    right: 60,
     bottom: 60,
+  },
+  legend: {
+    data: ['Unknown'],
   },
   xAxis: {
     type: 'category',
@@ -25,14 +29,24 @@ const option = {
   tooltip: {
     trigger: 'item',
     formatter(params) {
-      return `${store.getCountryCode()} - ${params.name}: ${params.data}`;
+      return `${params.seriesName} - ${params.name}: ${params.data}`;
     },
   },
   dataZoom: [
     {
+      id: 'year',
       type: 'slider',
       show: true,
       realtime: false,
+    },
+    {
+      id: 'range',
+      show: true,
+      yAxisIndex: 0,
+      filterMode: 'empty',
+      width: 30,
+      height: '80%',
+      showDataShadow: false,
     },
   ],
   series: [{
@@ -45,6 +59,10 @@ const myChart = echarts.init(document.getElementById('area'));
 const onRangeUpdated = [];
 
 function onDatazoom(event) {
+  if (event.dataZoomId !== 'year') {
+    return;
+  }
+
   function convertPercentageToYear(percentage, roundingFn) {
     return roundingFn((percentage / 100)
     * (store.getCurrentMaxYear() - store.getCurrentMinYear()) + store.getCurrentMinYear());
@@ -66,6 +84,59 @@ function convertYearToPercentage(year) {
     return 0;
   }
   return value;
+}
+
+function mapDataToSeries(data) {
+  const range = store.getCurrentMaxYear() - store.getCurrentMinYear();
+  // eslint-disable-next-line prefer-spread
+  const years = Array
+    .apply(null, { length: range })
+    .map(Number.call, Number)
+    .map(v => v + store.getCurrentMinYear());
+
+  let reportingCountryKeys = [];
+
+  data.forEach((d) => {
+    reportingCountryKeys = reportingCountryKeys.concat(Object.keys(d.reportingCountry));
+  });
+
+  reportingCountryKeys = _.uniq(reportingCountryKeys);
+
+  const totalsReportedPerYear = {};
+  years.forEach((y) => { totalsReportedPerYear[y] = 0; });
+
+
+  const countrySeries = reportingCountryKeys.map(country => ({
+    name: country,
+    type: 'line',
+    stack: 'Country',
+    areaStyle: {
+
+    },
+    data: years.map((y) => {
+      let value = data.find(d => Number(d.year) === y);
+      value = value ? _.get(value, `reportingCountry.${country}.${store.getFlowType()}.total`, 0) : 0;
+      totalsReportedPerYear[y] += value;
+      return value;
+    }),
+  }));
+
+  const unknownSeries = [
+    {
+      name: 'Unknown',
+      type: 'line',
+      stack: 'Country',
+      areaStyle: {},
+      data: years.map((y) => {
+        let value = data.find(d => Number(d.year) === y);
+        value = value ? _.get(value, `${store.getFlowType()}.total`, 0) : 0;
+        return value - totalsReportedPerYear[y];
+      }),
+    },
+  ];
+  reportingCountryKeys.push('Unknown');
+
+  return [countrySeries.concat(unknownSeries), reportingCountryKeys];
 }
 
 function extractMinAndMaxYear(data) {
@@ -102,18 +173,16 @@ function renderChart(data) {
     .map(Number.call, Number)
     .map(v => v + store.getCurrentMinYear());
 
+  const [series, legend] = mapDataToSeries(data);
+
   myChart.setOption({
     xAxis: {
       data: years,
     },
-    series: [
-      {
-        data: years.map((y) => {
-          const values = data.filter(d => Number(d.year) === y);
-          return values ? _.get(values, `[0].${store.getFlowType()}.total`, 0) : 0;
-        }),
-      },
-    ],
+    legend: {
+      data: legend,
+    },
+    series,
   });
 
   myChart.dispatchAction({
@@ -124,7 +193,7 @@ function renderChart(data) {
 }
 
 function updateChart() {
-  const data = filterMapData(store.getData(), store.getCountryCode());
+  const data = filterMapData(store.getSelectedCountryData(), store.getCountryCode());
   if (data.length > 0) {
     extractMinAndMaxYear(data);
     renderChart(data);

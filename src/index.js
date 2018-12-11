@@ -37,15 +37,21 @@ function handleFactorUpdate(index) {
   return (key) => {
     store[`setFactor${index}`](key);
     scatterplot.updateChart(index);
-    console.log('updating chart: ', index, key);
   };
 }
 
 function handleCountryUpdate(value) {
+  splashScreen.enable('audio-wave');
+  doc.setCountryTrend(value);
   store.setCountryCode(value);
-  area.updateChart();
-  pie.updateChart();
+
   [0, 1, 2].forEach(i => scatterplot.updateChart(i));
+  api.getCountryStats(value).then((countryData) => {
+    store.setSelectedCountryData(countryData.data);
+    area.updateChart();
+    pie.updateChart();
+    splashScreen.destroy();
+  });
 }
 
 function handleMeasureUpdate(value) {
@@ -74,7 +80,7 @@ function handleAreaChartUpdates(event) {
  * Asnyc Calls
  */
 
-api.getCountryStats().then(({ data }) => {
+api.getAllCountryStats().then(({ data }) => {
   store.setData(data);
   map.updateMap();
   splashScreen.destroy();

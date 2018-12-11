@@ -100,45 +100,55 @@
                 <div class="row">
                     <div class="col">
                         <div class="pt-3 pb-2 mb-3 border-bottom">
-                            <h1 class="h2">What are the Total <span id="flowTypeTitle">Inflow</span> Per Country Between <span id="startYear"></span> and <span id="endYear"></span>?</h1>
+                            <h1 class="h2">Total <span id="flowTypeTitle">Inflow</span> Per Country Between <span id="startYear">1930</span> and <span id="endYear">2011</span></h1>
                         </div>
-                        <div id="map" style="width:1120px; height:1020px;"></div>
-                        
+                        <div id="map" style="width:1120px; height:600px;"></div>
                     </div>
                     <div class="col scatter-chart-container">
                         <div id="trend" class="stacked-chart-container">
                             <div class="pt-3 pb-2 mb-3 border-bottom">
-                                <h1 class="h2">What is the Overall Trend Over Time?</h1>
+                                <h1 class="h2">Overall Trend Over Time For <span id="countryTrend"></span></h1>
                             </div>
-                            <div id="area" style="width:1200px; height:180px;"></div>
-                        </div>
-                        <div class="pt-3 pb-2 mb-3 border-bottom">
-                            <h1 class="h2">What Factors have Impacted Migration Flow?</h1>
-                        </div>
-                        <div class="scatter-flex">
-                            <div id="scatterplot" style="width:380px; height:380px;"></div>
-                            <div id="scatterplot2" style="width:380px; height:380px;"></div>
-                            <div id="scatterplot3" style="width:380px; height:380px;"></div>
-                        </div>
-                        <div class="scatter-flex">
-                            <div>
-                                <div class="pt-3 pb-2 mb-3 border-bottom" style="width:600px;">
-                                    <h1 class="h2">Origin/Destination?</h1>
-                                </div>
-                                <div>
-                                    <div id="stackedbar1" style="width:600px; height:300px;"></div>
-                                </div>
-                            </div>
-                            <div style="padding-left:20px;">
-                                <div class="pt-3 pb-2 mb-3 border-bottom" style="width:600px;">
-                                    <h1 class="h2">Citizenship</h1>
-                                </div>
-                                <div>
-                                    <div id="pie" style="width:600px; height:300px;"></div>
-                                </div>
-                            </div>
+                            <div id="area" style="width:1200px; height:600px;"></div>
                         </div>
                     </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="pt-3 pb-2 mb-3 border-bottom">
+                            <h1 class="h2">Correlations between factors and migration flow</h1>
+                        </div>
+                        <div class="scatter-flex">
+                            <div id="scatterplot" style="width:360px; height:360px; padding-right: 8px;"></div>
+                            <div id="scatterplot2" style="width:360px; height:360px; padding-right: 8px;"></div>
+                            <div id="scatterplot3" style="width:360px; height:360px;"></div>
+                        </div>
+                    </div>
+                    <div class="col scatter-flex">
+                        <div>
+                            <div class="pt-3 pb-2 mb-3 border-bottom" style="width:600px;">
+                                <h1 class="h2">Flow Composition</h1>
+                            </div>
+                            <div>
+                                <div id="pie" style="width:600px; height:300px;"></div>
+                            </div>
+                        </div>
+                        <div style="padding-left:20px;">
+                            <div class="pt-3 pb-2 mb-3 border-bottom" style="width:600px;">
+                                <h1 class="h2">Notes</h1>
+                            </div>
+                            <div>
+                                <h6>Data Sources</h6>
+                                <p>Migration Dataset Source: <br/><a href="https://migrationdataportal.org/themes/international-migration-flows">https://migrationdataportal.org/themes/international-migration-flows</a></p>
+                                
+                                <p>Sustainable Development Goals Dataset: <br/><a href="https://datacatalog.worldbank.org/dataset/sustainable-development-goals">https://datacatalog.worldbank.org/dataset/sustainable-development-goals</a></p>
+                                
+                                <h6>Usage</h6>
+                                <p>ISO Codes: <br/><a href="https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3">https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3</a></p>
+                                
+                            </div>
+                        </div>
+                    </div> 
                 </div>
             </div>
         </main>
@@ -148,8 +158,12 @@
 
 
 
+
+
+
+
 <!-- Bootstrap core JavaScript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-<script type="text/javascript" src="main.8b1ac1906f069d642647.js"></script></body>
+<script type="text/javascript" src="main.aa11c22354861a7833a3.js"></script></body>
 </html>
