@@ -48,6 +48,9 @@ client.indices.create({
             'countryName': {
               'type': 'keyword'
             },
+            'reportingCountry': {
+              'properties': {}
+            },
             'inflow': {
               'properties': {
                 'total': {
@@ -208,11 +211,24 @@ client.indices.create({
       csv()
         .fromFile(p.path)
         .subscribe((json) => {
+          let reportingCountryId,
+            reportingCountry;
           try {
             let countryId = json['Country codes -UN based-'].trim(),
               year = +json['Year'],
               id = countryId + year,
               data = {};
+
+            let reportingCountryName = json['Reporting country'];
+            if (byName[reportingCountryName]) {
+              reportingCountryId = byName[reportingCountryName].id3;
+              reportingCountry = {
+                countryName: reportingCountryName,
+                countryId: reportingCountryId,
+                countryCC: byName[reportingCountryName].cc,
+              };
+
+            }
 
             let cov = json['Coverage -Citizens/Foreigners/Both-'].toLowerCase()
                 .trim(),
@@ -245,35 +261,76 @@ client.indices.create({
             let d = {
               'script': {
                 'source': `
-                if (ctx._source[params.name] == null)
-                              ctx._source[params.name] = new HashMap();
+                Map container = ctx._source;
+                if (container[params.name] == null)
+                              container[params.name] = new HashMap();
                 
-                  if (ctx._source[params.name][params.cov] == null)
-                    ctx._source[params.name][params.cov] = new HashMap();
+                  if (container[params.name][params.cov] == null)
+                    container[params.name][params.cov] = new HashMap();
                  
-                  if (ctx._source[params.name][params.cov][params.sex] == null)
-                    ctx._source[params.name][params.cov][params.sex] = 0;
+                  if (container[params.name][params.cov][params.sex] == null)
+                    container[params.name][params.cov][params.sex] = 0;
                               
-                  ctx._source[params.name][params.cov][params.sex] += params.param1;
+                  container[params.name][params.cov][params.sex] += params.param1;
                           
                           
-                  if (ctx._source[params.name].total == null)
-                      ctx._source[params.name].total = 0;
+                  if (container[params.name].total == null)
+                      container[params.name].total = 0;
                       
-                  ctx._source[params.name].total += params.param1;
+                  container[params.name].total += params.param1;
                           
                   if (params.sex != 'total') {
-                    if (ctx._source[params.name][params.sex] == null)
-                        ctx._source[params.name][params.sex] = 0;
+                    if (container[params.name][params.sex] == null)
+                        container[params.name][params.sex] = 0;
                     
-                    ctx._source[params.name][params.sex] += params.param1;
+                    container[params.name][params.sex] += params.param1;
                     
                     
-                    if (ctx._source[params.name][params.cov].total == null)
-                        ctx._source[params.name][params.cov].total = 0;
+                    if (container[params.name][params.cov].total == null)
+                        container[params.name][params.cov].total = 0;
                     
-                    ctx._source[params.name][params.cov].total += params.param1;
+                    container[params.name][params.cov].total += params.param1;
 
+                  }
+
+                  if (params['reportingCountry'] != null && params['reportingCountryId'] != null ) {
+                    if (container['reportingCountry'] == null)
+                      container['reportingCountry'] = new HashMap();
+                    if (container['reportingCountry'][params['reportingCountryId']] == null) {
+                      container['reportingCountry'][params['reportingCountryId']] = params['reportingCountry'];
+                    }
+                    
+                    container = container['reportingCountry'][params['reportingCountryId']];
+                    
+                    if (container[params.name] == null)
+                      container[params.name] = new HashMap();
+                  
+                    if (container[params.name][params.cov] == null)
+                      container[params.name][params.cov] = new HashMap();
+                   
+                    if (container[params.name][params.cov][params.sex] == null)
+                      container[params.name][params.cov][params.sex] = 0;
+                                
+                    container[params.name][params.cov][params.sex] += params.param1;
+                            
+                            
+                    if (container[params.name].total == null)
+                        container[params.name].total = 0;
+                        
+                    container[params.name].total += params.param1;
+                            
+                    if (params.sex != 'total') {
+                      if (container[params.name][params.sex] == null)
+                          container[params.name][params.sex] = 0;
+                      
+                      container[params.name][params.sex] += params.param1;
+                      
+                      
+                      if (container[params.name][params.cov].total == null)
+                          container[params.name][params.cov].total = 0;
+                      
+                      container[params.name][params.cov].total += params.param1;
+                  }
                   }`,
                 'lang': 'painless',
                 'params': {
@@ -281,6 +338,8 @@ client.indices.create({
                   cov,
                   sex,
                   name: p.name,
+                  reportingCountryId,
+                  reportingCountry,
                   doc
                 }
               },
@@ -289,10 +348,16 @@ client.indices.create({
                 countryId,
                 countryName: json['COUNTRIES'].trim(),
                 countryCC: json['UN numeric code'].trim(),
-                associations: []
+                associations: [],
               }
             };
             d.upsert[p.name] = data;
+            if (reportingCountry && reportingCountryId) {
+              d.upsert.reportingCountry = {};
+              d.upsert.reportingCountry[reportingCountryId] = {};
+              Object.assign(d.upsert.reportingCountry[reportingCountryId], reportingCountry);
+              d.upsert.reportingCountry[reportingCountryId][p.name] = data;
+            }
             tasks.push(
               d
             );

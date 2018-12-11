@@ -44,60 +44,60 @@ function trim(s) {
 }
 
 const rowLoader = [
-  // {
-  //   id: function (json) {
-  //     return json.iso_a3 + new Date(json.date).getFullYear();
-  //   },
-  //   descriptor: {
-  //     name: function () {
-  //       return 'big_mac';
-  //     },
-  //     value: function (json) {
-  //       return Number(json.adj_price);
-  //     }
-  //   },
-  //   path: '../datasets/Big Mac Index 2011-2018/big-mac-adjusted-index.csv'
-  // }
+  {
+    id: function (json) {
+      return json.iso_a3 + new Date(json.date).getFullYear();
+    },
+    descriptor: {
+      name: function () {
+        return 'Big mac index';
+      },
+      value: function (json) {
+        return Number(json.adj_price);
+      }
+    },
+    path: '../datasets/Big Mac Index 2011-2018/big-mac-adjusted-index.csv'
+  }
 
 ];
 
 const columnLoader = [
-  // {
-  //   id: function (json,  index) {
-  //     return json['Country Code'] + index;
-  //   },
-  //   descriptor: {
-  //     name: function () {
-  //       return 'development_assistance';
-  //     }
-  //   },
-  //   start: 1960,
-  //   incr: (n) => {
-  //     let ret = +n + 1;
-  //
-  //     return ret > 2017 ? null : ret;
-  //   },
-  //   path: '../datasets/Net Development Assistance and Official Aid Recieved 1960-2015/API_DT.ODA.ALLD.CD_DS2_en_csv_v2_10227906.csv'
-  // },
-  //
-  // {
-  //   id: function (json, index) {
-  //     return json['Country Code'] + index;
-  //   },
-  //   descriptor: {
-  //     name: function () {
-  //       return 'percent_labour_force_female';
-  //     }
-  //   },
-  //   start: 1960,
-  //   incr: (n) => {
-  //     let ret = +n + 1;
-  //
-  //     return ret > 2017 ? null : ret;
-  //   },
-  //   path: '../datasets/Labour Force % Women/API_SL.TLF.TOTL.FE.ZS_DS2_en_csv_v2_10227160.csv'
-  // }
-  // ,
+  {
+    id: function (json,  index) {
+      return json['Country Code'] + index;
+    },
+    descriptor: {
+      name: function () {
+        return 'Development assistance';
+      }
+    },
+    start: 1960,
+    incr: (n) => {
+      let ret = +n + 1;
+
+      return ret > 2017 ? null : ret;
+    },
+    path: '../datasets/Net Development Assistance and Official Aid Recieved 1960-2015/API_DT.ODA.ALLD.CD_DS2_en_csv_v2_10227906.csv'
+  },
+
+  {
+    id: function (json, index) {
+      return json['Country Code'] + index;
+    },
+    descriptor: {
+      name: function () {
+        return 'Percent labour female';
+      }
+    },
+    start: 1960,
+    incr: (n) => {
+      let ret = +n + 1;
+
+      return ret > 2017 ? null : ret;
+    },
+    path: '../datasets/Labour Force % Women/API_SL.TLF.TOTL.FE.ZS_DS2_en_csv_v2_10227160.csv'
+  }
+  ,
   {
     id: function (json, index) {
       return json['Country Code'] + index;
