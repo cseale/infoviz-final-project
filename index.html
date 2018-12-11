@@ -12,6 +12,7 @@
 </head>
 
 <body>
+<div class="whitebox"></div>
 <div class="container-fluid">
     <div class="row">
         <nav class="col d-none d-md-block bg-light sidebar">
@@ -53,32 +54,40 @@
                         <li class="nav-item">
                             <span class="nav-link active">
                                 <span data-feather="home"></span>
-                                Select Breakdown (Optional) <span class="sr-only">(current)</span>
+                                Select Factors 1 <span class="sr-only">(current)</span>
                             </span>
                         </li>
                         <li class="nav-item">
                             <div class="nav-link">
-                                <select class="selectpicker" id="breakdownSelect">
-                                    <option value="">Overall</option>
-                                    <option value="gender">Gender</option>
-                                    <option value="citizen">Citizenship</option>
-                                </select>
+                                <select class="selectpicker" id="factor0Select"></select>
                             </div>
                         </li>
                     </div>
+
                     <div>
                         <li class="nav-item">
                             <span class="nav-link active">
                                 <span data-feather="home"></span>
-                                Select Factors (Max 3) <span class="sr-only">(current)</span>
+                                Select Factors 2 <span class="sr-only">(current)</span>
                             </span>
                         </li>
                         <li class="nav-item">
                             <div class="nav-link">
-                                <select class="selectpicker" id="breakdownSelect">
-                                    <option value="bmi" selected>Big Mac Index</option>
-                                    <option value="gdp">Gender</option>
-                                </select>
+                                <select class="selectpicker" id="factor1Select"></select>
+                            </div>
+                        </li>
+                    </div>
+
+                    <div>
+                        <li class="nav-item">
+                            <span class="nav-link active">
+                                <span data-feather="home"></span>
+                                Select Factors 3 <span class="sr-only">(current)</span>
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <div class="nav-link">
+                                <select class="selectpicker" id="factor2Select"></select>
                             </div>
                         </li>
                     </div>
@@ -111,10 +120,10 @@
                             <div id="scatterplot2" style="width:380px; height:380px;"></div>
                             <div id="scatterplot3" style="width:380px; height:380px;"></div>
                         </div>
-                        <div class="row flex-row">
+                        <div class="scatter-flex">
                             <div>
                                 <div class="pt-3 pb-2 mb-3 border-bottom" style="width:600px;">
-                                    <h1 class="h2">Where are they Migrating From/To?</h1>
+                                    <h1 class="h2">Origin/Destination?</h1>
                                 </div>
                                 <div>
                                     <div id="stackedbar1" style="width:600px; height:300px;"></div>
@@ -122,7 +131,7 @@
                             </div>
                             <div style="padding-left:20px;">
                                 <div class="pt-3 pb-2 mb-3 border-bottom" style="width:600px;">
-                                    <h1 class="h2">Total Proportion of Migrants</h1>
+                                    <h1 class="h2">Citizenship</h1>
                                 </div>
                                 <div>
                                     <div id="pie" style="width:600px; height:300px;"></div>
