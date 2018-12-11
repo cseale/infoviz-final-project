@@ -44,6 +44,7 @@ function handleCountryUpdate(value) {
   splashScreen.enable('audio-wave');
   doc.setCountryTrend(value);
   store.setCountryCode(value);
+  map.updateMap();
 
   [0, 1, 2].forEach(i => scatterplot.updateChart(i));
   api.getCountryStats(value).then((countryData) => {

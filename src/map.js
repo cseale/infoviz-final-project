@@ -1,7 +1,7 @@
 import echarts from 'echarts';
 import _ from 'lodash';
 import store from './store';
-import { DIVERGING_THEME } from './constants';
+import { COLORS } from './constants';
 
 const worldMap = require('echarts/map/json/world.json');
 
@@ -12,12 +12,6 @@ let min = Infinity;
 
 const onClickHanders = [];
 
-
-const colorSchemes = {
-  outflow: DIVERGING_THEME.slice(5),
-  inflow: DIVERGING_THEME.slice(0, 5).reverse(),
-  netflow: DIVERGING_THEME,
-};
 
 const option = {
   backgroundColor: '#fff',
@@ -60,9 +54,10 @@ const option = {
           opacity: 0.8,
           label: {
             show: true,
+            fontSize: 13,
           },
-          borderColor: 'red',
-          borderWidth: 2,
+          borderColor: 'yellow',
+          borderWidth: 3,
         },
       },
     },
@@ -136,7 +131,7 @@ function renderMap(data) {
       min,
       max,
       inRange: {
-        color: colorSchemes[store.getFlowType()],
+        color: COLORS[store.getFlowType()],
       },
     },
     series: [

@@ -3,7 +3,7 @@ import echarts from 'echarts';
 import _ from 'lodash';
 
 import store from './store';
-import { DIVERGING_THEME } from './constants';
+// import { COLORS } from './constants';
 
 const option = {
   grid: {
@@ -12,6 +12,12 @@ const option = {
     right: 60,
     bottom: 60,
   },
+  // visualMap: {
+  //   show: false,
+  //   inRange: {
+  //     color: COLORS[store.getFlowType()],
+  //   },
+  // },
   legend: {
     data: ['Unknown'],
   },
@@ -26,6 +32,7 @@ const option = {
       show: true,
     },
   },
+
   tooltip: {
     trigger: 'item',
     formatter(params) {
@@ -110,13 +117,11 @@ function mapDataToSeries(data) {
     name: country,
     type: 'line',
     stack: 'Country',
-    areaStyle: {
-
-    },
+    areaStyle: {},
     data: years.map((y) => {
       let value = data.find(d => Number(d.year) === y);
-      value = value ? _.get(value, `reportingCountry.${country}.${store.getFlowType()}.total`, 0) : 0;
-      totalsReportedPerYear[y] += value;
+      value = _.get(value, `reportingCountry.${country}.${store.getFlowType()}.total`, null);
+      totalsReportedPerYear[y] += value || 0;
       return value;
     }),
   }));
