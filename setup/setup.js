@@ -49,9 +49,89 @@ client.indices.create({
               'type': 'keyword'
             },
             'reportingCountry': {
+              'enabled': false,
               'properties': {}
             },
             'inflow': {
+              'properties': {
+                'total': {
+                  'type': 'integer'
+                },
+                'male': {
+                  'type': 'integer'
+                },
+                'female': {
+                  'type': 'integer'
+                },
+                'both': {
+                  'properties': {
+                    'female': {
+                      'type': 'integer'
+                    },
+                    'male': {
+                      'type': 'integer'
+                    },
+                    'total': {
+                      'type': 'integer'
+                    }
+                  }
+                },
+                'citizens': {
+                  'properties': {
+                    'female': {
+                      'type': 'integer'
+                    },
+                    'male': {
+                      'type': 'integer'
+                    },
+                    'total': {
+                      'type': 'integer'
+                    }
+                  }
+                },
+                'foreign family': {
+                  'properties': {
+                    'total': {
+                      'type': 'integer'
+                    }
+                  }
+                },
+                'foreign others': {
+                  'properties': {
+                    'total': {
+                      'type': 'integer'
+                    }
+                  }
+                },
+                'foreign workers': {
+                  'properties': {
+                    'female': {
+                      'type': 'integer'
+                    },
+                    'male': {
+                      'type': 'integer'
+                    },
+                    'total': {
+                      'type': 'integer'
+                    }
+                  }
+                },
+                'foreigners': {
+                  'properties': {
+                    'female': {
+                      'type': 'integer'
+                    },
+                    'male': {
+                      'type': 'integer'
+                    },
+                    'total': {
+                      'type': 'integer'
+                    }
+                  }
+                }
+              }
+            },
+            'netflow': {
               'properties': {
                 'total': {
                   'type': 'integer'
@@ -205,6 +285,10 @@ client.indices.create({
       {
         path: '../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/DEMIG-C2C-Migration-Inflow-part-b.csv',
         name: 'inflow'
+      },
+      {
+        path: '../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/DEMIG-C2C-Migration-Netflow.csv',
+        name: 'netflow'
       }
     ]) {
 
