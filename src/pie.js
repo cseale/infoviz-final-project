@@ -78,7 +78,6 @@ function calculateTotals(data) {
   let foreignerMale = 0;
 
   data.forEach((d) => {
-    console.log(d);
     maleTotal += _.get(d, `${store.getFlowType()}.male`, 0);
     femaleTotal += _.get(d, `${store.getFlowType()}.female`, 0);
     totalTotal += _.get(d, `${store.getFlowType()}.total`, 0);

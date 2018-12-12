@@ -1,6 +1,6 @@
 const startYear = document.getElementById('startYear');
 const endYear = document.getElementById('endYear');
-const loading = document.getElementById('loading');
+const countryTrend = document.getElementById('countryTrend');
 const flowTypeMapTitle = document.getElementById('flowTypeTitle');
 
 function setFlowType(value) {
@@ -15,13 +15,13 @@ function setEndYear(value) {
   endYear.innerHTML = value;
 }
 
-function setLoading(value) {
-  loading.innerHTML = value;
+function setCountryTrend(value) {
+  countryTrend.innerHTML = value;
 }
 
 export default {
   setFlowType,
   setStartYear,
   setEndYear,
-  setLoading,
+  setCountryTrend,
 };

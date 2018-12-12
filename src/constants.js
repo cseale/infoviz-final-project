@@ -40,3 +40,11 @@ export const FACTORS = [
   GDP_GROWTH,
   GDP_PER_CAPITA,
 ].map(f => ({ name: f }));
+
+const DIVERGING_THEME = ['rgb(103,0,31)', 'rgb(178,24,43)', 'rgb(214,96,77)', 'rgb(244,165,130)', 'rgb(253,219,199)', 'rgb(247,247,247)', 'rgb(209,229,240)', 'rgb(146,197,222)', 'rgb(67,147,195)', 'rgb(33,102,172)', 'rgb(5,48,97)'];
+
+export const COLORS = {
+  outflow: DIVERGING_THEME.slice(5),
+  inflow: DIVERGING_THEME.slice(0, 5).reverse(),
+  netflow: DIVERGING_THEME,
+};

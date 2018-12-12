@@ -1,6 +1,7 @@
 import echarts from 'echarts';
 import _ from 'lodash';
 import store from './store';
+import { COLORS } from './constants';
 
 const worldMap = require('echarts/map/json/world.json');
 
@@ -11,13 +12,6 @@ let min = Infinity;
 
 const onClickHanders = [];
 
-const diveringScheme = ['rgb(103,0,31)', 'rgb(178,24,43)', 'rgb(214,96,77)', 'rgb(244,165,130)', 'rgb(253,219,199)', 'rgb(247,247,247)', 'rgb(209,229,240)', 'rgb(146,197,222)', 'rgb(67,147,195)', 'rgb(33,102,172)', 'rgb(5,48,97)'];
-
-const colorSchemes = {
-  outflow: diveringScheme.slice(5),
-  inflow: diveringScheme.slice(5).reverse(),
-  netflow: diveringScheme,
-};
 
 const option = {
   backgroundColor: '#fff',
@@ -44,9 +38,6 @@ const option = {
     text: ['High', 'Low'],
     realtime: false,
     calculable: true,
-    inRange: {
-      color: colorSchemes.outflow,
-    },
   },
   series: [
     {
@@ -63,9 +54,10 @@ const option = {
           opacity: 0.8,
           label: {
             show: true,
+            fontSize: 13,
           },
-          borderColor: 'red',
-          borderWidth: 2,
+          borderColor: 'yellow',
+          borderWidth: 3,
         },
       },
     },
@@ -138,6 +130,9 @@ function renderMap(data) {
     visualMap: {
       min,
       max,
+      inRange: {
+        color: COLORS[store.getFlowType()],
+      },
     },
     series: [
       {

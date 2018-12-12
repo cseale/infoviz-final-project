@@ -26,7 +26,7 @@ import doc from './doc';
 // data management
 import store from './store';
 import {
-  HOMICIDES, DEVELOPMENT_ASSISTANCE, FACTORS, GDP_PER_CAPITA,
+  HOMICIDES, EXPORTS, FACTORS, GDP_PER_CAPITA,
 } from './constants';
 
 /**
@@ -37,15 +37,22 @@ function handleFactorUpdate(index) {
   return (key) => {
     store[`setFactor${index}`](key);
     scatterplot.updateChart(index);
-    console.log('updating chart: ', index, key);
   };
 }
 
 function handleCountryUpdate(value) {
+  splashScreen.enable('audio-wave');
+  doc.setCountryTrend(value);
   store.setCountryCode(value);
-  area.updateChart();
-  pie.updateChart();
+  map.updateMap();
+
   [0, 1, 2].forEach(i => scatterplot.updateChart(i));
+  api.getCountryStats(value).then((countryData) => {
+    store.setSelectedCountryData(countryData.data);
+    area.updateChart();
+    pie.updateChart();
+    splashScreen.destroy();
+  });
 }
 
 function handleMeasureUpdate(value) {
@@ -74,7 +81,7 @@ function handleAreaChartUpdates(event) {
  * Asnyc Calls
  */
 
-api.getCountryStats().then(({ data }) => {
+api.getAllCountryStats().then(({ data }) => {
   store.setData(data);
   map.updateMap();
   splashScreen.destroy();
@@ -89,13 +96,13 @@ api.getCountries().then(({ data }) => {
  * Control Setup
  */
 controls.addOptions(controls.FACTOR0_SELECT_ID, FACTORS, 'name', 'name');
-controls.selectOption(controls.FACTOR0_SELECT_ID, GDP_PER_CAPITA);
+controls.selectOption(controls.FACTOR0_SELECT_ID, store.getFactor0());
 
 controls.addOptions(controls.FACTOR1_SELECT_ID, FACTORS, 'name', 'name');
-controls.selectOption(controls.FACTOR1_SELECT_ID, DEVELOPMENT_ASSISTANCE);
+controls.selectOption(controls.FACTOR1_SELECT_ID, store.getFactor1());
 
 controls.addOptions(controls.FACTOR2_SELECT_ID, FACTORS, 'name', 'name');
-controls.selectOption(controls.FACTOR2_SELECT_ID, HOMICIDES);
+controls.selectOption(controls.FACTOR2_SELECT_ID, store.getFactor2());
 
 /**
  * Register Listeners

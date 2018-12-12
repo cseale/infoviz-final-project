@@ -4,11 +4,16 @@ function getCountries() {
   return axios.get('/countries');
 }
 
-function getCountryStats() {
+function getAllCountryStats() {
   return axios.get('/countryStats');
+}
+
+function getCountryStats(reportingCountry) {
+  return axios.get(`/countryStats?isoCode=${reportingCountry}&reportingCountry=true`);
 }
 
 export default {
   getCountries,
   getCountryStats,
+  getAllCountryStats,
 };
