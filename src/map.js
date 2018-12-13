@@ -15,14 +15,6 @@ const onClickHanders = [];
 
 const option = {
   backgroundColor: '#fff',
-  title: {
-    text: 'World Migration Outflow (1980)',
-    left: 'center',
-    top: 'top',
-    textStyle: {
-      color: '#fff',
-    },
-  },
   tooltip: {
     trigger: 'item',
     formatter(params) {
@@ -31,7 +23,7 @@ const option = {
       }.${value[1]}`;
       let flowType = store.getFlowType();
       flowType = flowType.charAt(0).toUpperCase() + flowType.substr(1);
-      return `${flowType}: ${store.getCurrentStartYear()} - ${store.getCurrentEndYear()}<br/>${params.name} : ${value}`.replace('.undefined', '');
+      return `${flowType}: ${store.getCurrentStartYear()} - ${store.getCurrentEndYear()}<br/>${params.name} : ${value === 'NaN.undefined' ? 'Not Reported' : value}`.replace('.undefined', '');
     },
   },
   visualMap: {
