@@ -19,6 +19,7 @@ app.use(express.json());
 
 
 app.get('/countries', (req, res, next) => {
+  res.set('Cache-Control', 'public, max-age=31557600'); // one year
   client.search({
     index: 'migration_total',
     type: '_doc',
@@ -58,6 +59,7 @@ app.get('/countries', (req, res, next) => {
 });
 
 app.get('/countryStats', (req, res, next) => {
+  res.set('Cache-Control', 'public, max-age=31557600'); // one year
   let { startYear, endYear, isoCode, associations, reportingCountry } = req.query;
 
   if (associations) {
