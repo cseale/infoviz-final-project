@@ -124,6 +124,18 @@ function mapDataToSeries(data) {
     }),
   }));
 
+
+  const negativeCountrySeries = _.cloneDeep(countrySeries).map((country) => {
+    country.data = country.data.map(d => (d < 0 ? d : null));
+    country.stack = 'Country';
+    return country;
+  });
+
+  const positiveCountrySeries = _.cloneDeep(countrySeries).map((country) => {
+    country.data = country.data.map(d => (d > 0 ? d : null));
+    return country;
+  });
+
   const unknownSeries = [
     {
       name: 'Unknown',
@@ -139,7 +151,7 @@ function mapDataToSeries(data) {
   ];
   reportingCountryKeys.push('Unknown');
 
-  return [unknownSeries.concat(countrySeries), reportingCountryKeys];
+  return [unknownSeries.concat(negativeCountrySeries, positiveCountrySeries), reportingCountryKeys];
 }
 
 function extractMinAndMaxYear(data) {

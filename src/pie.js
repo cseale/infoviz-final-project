@@ -13,9 +13,10 @@ const option = {
     x: 'left',
     data: ['Male', 'Female', 'Unknown'],
   },
-  color: COLORS.categories,
+
   series: [
     {
+      color: COLORS.pieInner,
       name: 'Gender Breakdown',
       type: 'pie',
       radius: ['0%', '30%'],
@@ -39,15 +40,14 @@ const option = {
       },
     },
     {
+      color: COLORS.pieOuter,
       name: 'Citizenship',
       type: 'pie',
       radius: ['40%', '55%'],
       label: {
+        fontSize: 14,
         normal: {
-          backgroundColor: '#eee',
-          borderColor: '#aaa',
-          borderWidth: 1,
-          borderRadius: 4,
+          fontSize: 15,
         },
       },
     },
@@ -72,6 +72,10 @@ function filterData(data, countryId) {
 }
 
 function calculateTotals(data) {
+  function fixshittynumbers(d, type) {
+    return Math.abs(_.get(d, type, 0));
+  }
+
   let maleTotal = 0;
   let femaleTotal = 0;
   let totalTotal = 0;
@@ -81,32 +85,32 @@ function calculateTotals(data) {
   let foreignerMale = 0;
 
   data.forEach((d) => {
-    maleTotal += _.get(d, `${store.getFlowType()}.male`, 0);
-    femaleTotal += _.get(d, `${store.getFlowType()}.female`, 0);
-    totalTotal += _.get(d, `${store.getFlowType()}.total`, 0);
+    maleTotal += fixshittynumbers(d, `${store.getFlowType()}.male`, 0);
+    femaleTotal += fixshittynumbers(d, `${store.getFlowType()}.female`, 0);
+    totalTotal += fixshittynumbers(d, `${store.getFlowType()}.total`, 0);
 
-    citizenFemale += _.get(d, `${store.getFlowType()}.citizens.male`, 0);
-    foreignerFemale += _.get(d, `${store.getFlowType()}.citizens.female`, 0);
-    citizenMale += _.get(d, `${store.getFlowType()}.foreigners.male`, 0);
-    foreignerMale += _.get(d, `${store.getFlowType()}.foreigners.female`, 0);
+    citizenFemale += fixshittynumbers(d, `${store.getFlowType()}.citizens.male`, 0);
+    foreignerFemale += fixshittynumbers(d, `${store.getFlowType()}.citizens.female`, 0);
+    citizenMale += fixshittynumbers(d, `${store.getFlowType()}.foreigners.male`, 0);
+    foreignerMale += fixshittynumbers(d, `${store.getFlowType()}.foreigners.female`, 0);
   });
   const unknownTotal = totalTotal - maleTotal - femaleTotal;
   const unknownFemale = femaleTotal - citizenFemale - foreignerFemale;
   const unknownMale = maleTotal - citizenMale - foreignerMale;
   const citizens = [
-    { value: unknownTotal, name: 'Unknown' },
     { value: citizenMale, name: 'Male Citizen' },
     { value: foreignerMale, name: 'Male Foreigner' },
     { value: unknownMale > 0 ? unknownMale : 0, name: 'Male Unknown' },
     { value: citizenFemale, name: 'Female Citizen' },
     { value: foreignerFemale, name: 'Female Foreigner' },
     { value: unknownFemale > 0 ? unknownFemale : 0, name: 'Female Unknown' },
+    { value: unknownTotal, name: 'Unknown' },
   ];
 
   const totals = [
-    { value: totalTotal - maleTotal - femaleTotal, name: 'Unknown' },
     { value: maleTotal, name: 'Male' },
     { value: femaleTotal, name: 'Female' },
+    { value: totalTotal - maleTotal - femaleTotal, name: 'Unknown' },
   ];
 
   return [totals, citizens];
