@@ -105,7 +105,8 @@ function mapDataToSeries(data) {
   let reportingCountryKeys = [];
 
   data.forEach((d) => {
-    reportingCountryKeys = reportingCountryKeys.concat(Object.keys(d.reportingCountry));
+    const reportingCountry = _.get(d, 'reportingCountry', {});
+    reportingCountryKeys = reportingCountryKeys.concat(Object.keys(reportingCountry));
   });
 
   reportingCountryKeys = _.uniq(reportingCountryKeys);
@@ -117,7 +118,7 @@ function mapDataToSeries(data) {
   const countrySeries = reportingCountryKeys.map(country => ({
     name: country,
     type: 'line',
-    // stack: 'Country',
+    stack: 'Country',
     areaStyle: {},
     data: years.map((y) => {
       let value = data.find(d => Number(d.year) === y);
@@ -131,7 +132,7 @@ function mapDataToSeries(data) {
     {
       name: 'Unknown',
       type: 'line',
-      // stack: 'Country',
+      stack: 'Country',
       areaStyle: {},
       data: years.map((y) => {
         let value = data.find(d => Number(d.year) === y);

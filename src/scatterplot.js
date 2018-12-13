@@ -27,6 +27,12 @@ const option = {
   series: [{
     symbolSize: 20,
     type: 'scatter',
+    emphasis: {
+      itemStyle: {
+        borderColor: '#333',
+        borderWidth: 3,
+      },
+    },
   }],
 };
 
