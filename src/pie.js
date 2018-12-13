@@ -22,6 +22,7 @@ const option = {
         normal: {
           show: false,
         },
+        fontSize: 13,
         emphasis: {
           show: false,
           textStyle: {

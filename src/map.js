@@ -55,8 +55,9 @@ const option = {
           label: {
             show: true,
             fontSize: 13,
+            fontColor: null,
           },
-          borderColor: 'yellow',
+          borderColor: null,
           borderWidth: 3,
         },
       },
