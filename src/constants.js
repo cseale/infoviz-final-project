@@ -43,8 +43,11 @@ export const FACTORS = [
 
 const DIVERGING_THEME = ['rgb(103,0,31)', 'rgb(178,24,43)', 'rgb(214,96,77)', 'rgb(244,165,130)', 'rgb(253,219,199)', 'rgb(247,247,247)', 'rgb(209,229,240)', 'rgb(146,197,222)', 'rgb(67,147,195)', 'rgb(33,102,172)', 'rgb(5,48,97)'];
 
+const CATEGORICAL_THEME = ['rgb(141,211,199)', 'rgb(255,255,179)', 'rgb(190,186,218)', 'rgb(251,128,114)', 'rgb(128,177,211)', 'rgb(253,180,98)', 'rgb(179,222,105)', 'rgb(252,205,229)', 'rgb(217,217,217)', 'rgb(188,128,189)', 'rgb(204,235,197)', 'rgb(255,237,111)'];
+
 export const COLORS = {
   outflow: DIVERGING_THEME.slice(5),
   inflow: DIVERGING_THEME.slice(0, 5).reverse(),
   netflow: DIVERGING_THEME,
+  categories: CATEGORICAL_THEME,
 };

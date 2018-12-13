@@ -3,6 +3,7 @@ import echarts from 'echarts';
 import _ from 'lodash';
 
 import store from './store';
+import { COLORS } from './constants';
 // import { COLORS } from './constants';
 
 const option = {
@@ -12,12 +13,7 @@ const option = {
     right: 60,
     bottom: 60,
   },
-  // visualMap: {
-  //   show: false,
-  //   inRange: {
-  //     color: COLORS[store.getFlowType()],
-  //   },
-  // },
+  color: COLORS.categories,
   legend: {
     data: [],
   },

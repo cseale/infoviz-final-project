@@ -1,6 +1,7 @@
 import echarts from 'echarts';
 import _ from 'lodash';
 import store from './store';
+import { COLORS } from './constants';
 
 const option = {
   tooltip: {
@@ -12,6 +13,7 @@ const option = {
     x: 'left',
     data: ['Male', 'Female', 'Unknown'],
   },
+  color: COLORS.categories,
   series: [
     {
       name: 'Gender Breakdown',
@@ -92,19 +94,19 @@ function calculateTotals(data) {
   const unknownFemale = femaleTotal - citizenFemale - foreignerFemale;
   const unknownMale = maleTotal - citizenMale - foreignerMale;
   const citizens = [
+    { value: unknownTotal, name: 'Unknown' },
     { value: citizenMale, name: 'Male Citizen' },
     { value: foreignerMale, name: 'Male Foreigner' },
     { value: unknownMale > 0 ? unknownMale : 0, name: 'Male Unknown' },
     { value: citizenFemale, name: 'Female Citizen' },
     { value: foreignerFemale, name: 'Female Foreigner' },
     { value: unknownFemale > 0 ? unknownFemale : 0, name: 'Female Unknown' },
-    { value: unknownTotal, name: 'Unknown' },
   ];
 
   const totals = [
+    { value: totalTotal - maleTotal - femaleTotal, name: 'Unknown' },
     { value: maleTotal, name: 'Male' },
     { value: femaleTotal, name: 'Female' },
-    { value: totalTotal - maleTotal - femaleTotal, name: 'Unknown' },
   ];
 
   return [totals, citizens];
