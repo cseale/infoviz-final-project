@@ -117,8 +117,13 @@ function calculateTotals(data) {
 }
 
 function render() {
-  const data = filterData(store.getData(), store.getCountryCode());
+  if (store.getCountryCode() === '') {
+    return;
+  }
+
+  const data = filterData(store.getSelectedCountryData(), store.getCountryCode());
   const [totals, citizens] = calculateTotals(data);
+
   myChart.setOption({
     series: [
       {
