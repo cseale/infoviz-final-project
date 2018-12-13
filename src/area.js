@@ -4,7 +4,6 @@ import _ from 'lodash';
 
 import store from './store';
 import { COLORS } from './constants';
-// import { COLORS } from './constants';
 
 const option = {
   grid: {
