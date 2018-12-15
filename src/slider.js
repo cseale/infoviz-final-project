@@ -1,4 +1,9 @@
-import _ from 'lodash';
+/**
+ * File for generating the slider for the vis
+ * author: Colm Seale
+ */
+
+
 import noUiSlider from 'nouislider';
 import 'nouislider/distribute/nouislider.css';
 import wNumb from 'wnumb';

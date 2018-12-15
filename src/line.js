@@ -1,3 +1,8 @@
+/**
+ * File that does sweet bugger all. Ignore him.
+ * author: Colm Seale
+ */
+
 import echarts from 'echarts';
 
 // based on prepared DOM, initialize echarts instance

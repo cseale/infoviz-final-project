@@ -1,3 +1,8 @@
+/**
+ * File for generating the pie-in-a-doughtnut for the vis
+ * author: Colm Seale
+ */
+
 import echarts from 'echarts';
 import _ from 'lodash';
 import store from './store';
@@ -15,6 +20,7 @@ const option = {
   },
 
   series: [
+    // define the pie
     {
       color: COLORS.pieInner,
       name: 'Gender Breakdown',
@@ -39,6 +45,7 @@ const option = {
         },
       },
     },
+    // define the doughnut
     {
       color: COLORS.pieOuter,
       name: 'Citizenship',
@@ -71,7 +78,16 @@ function filterData(data, countryId) {
       && Number(d.year) >= store.getCurrentStartYear());
 }
 
+/**
+ * Aggregates the totals for males, females and their breakdown in terms
+ * of citizenship.
+ * @param {} data
+ */
 function calculateTotals(data) {
+  // If you are a TA and reading this, I was having a really bad day when I wrote
+  // this next little function. It's not you, it's me.
+
+  // Sorry I'm not sorry >:D
   function fixshittynumbers(d, type) {
     return Math.abs(_.get(d, type, 0));
   }
@@ -84,6 +100,7 @@ function calculateTotals(data) {
   let citizenMale = 0;
   let foreignerMale = 0;
 
+  // ADD ALL THE THINGS
   data.forEach((d) => {
     maleTotal += fixshittynumbers(d, `${store.getFlowType()}.male`, 0);
     femaleTotal += fixshittynumbers(d, `${store.getFlowType()}.female`, 0);
@@ -127,13 +144,17 @@ function render() {
   myChart.setOption({
     series: [
       {
+        // the pie
         data: totals,
       },
       {
+        // the doughnut
         data: citizens,
       },
     ],
   });
+
+  // I'm getting hungry writing these comments.
 }
 
 function updateChart() {

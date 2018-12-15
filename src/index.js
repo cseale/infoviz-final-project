@@ -1,3 +1,11 @@
+/**
+ * Main engine of the application, hooking up all the various interactions,
+ * visualisations, async events, and controls, and starting the application.
+ *
+ * Basically, it does the damn thing.
+ * author: Colm Seale
+ */
+
 // bootstrap
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -33,7 +41,6 @@ import {
 /**
  * Callback functions
  */
-
 function handleFactorUpdate(index) {
   return (key) => {
     store[`setFactor${index}`](key);

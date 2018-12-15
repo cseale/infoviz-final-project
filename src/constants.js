@@ -1,3 +1,8 @@
+/**
+ * File declaring (most) of the constants we use throughout the application
+ * author: Colm Seale
+ */
+
 // eslint-disable-next-line import/prefer-default-export
 export const OUTFLOW = 'outflow';
 export const INFLOW = 'inflow';

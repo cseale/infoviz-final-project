@@ -1,3 +1,8 @@
+/**
+ * File for storing vis state and app data
+ * author: Colm Seale
+ */
+
 import { GDP_GROWTH, EXPORTS, HOMICIDES } from './constants';
 
 const MAX_YEAR = 2011;

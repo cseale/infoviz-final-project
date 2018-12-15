@@ -1,3 +1,8 @@
+/**
+ * REST API interface
+ * author: Colm Seale
+ */
+
 import axios from 'axios';
 
 function getCountries() {

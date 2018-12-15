@@ -1,3 +1,8 @@
+/**
+ * File for updating certain text elements on screen
+ * author: Colm Seale
+ */
+
 const startYear = document.getElementById('startYear');
 const endYear = document.getElementById('endYear');
 const countryTrend = document.getElementById('countryTrend');
