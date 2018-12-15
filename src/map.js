@@ -43,7 +43,7 @@ const option = {
         opacity: 1,
         emphasis: {
           areaColor: null,
-          opacity: 0.8,
+          opacity: 1,
           label: {
             show: true,
             fontSize: 13,
