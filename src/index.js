@@ -1,3 +1,11 @@
+/**
+ * Main engine of the application, hooking up all the various interactions,
+ * visualisations, async events, and controls, and starting the application.
+ *
+ * Basically, it does the damn thing.
+ * author: Colm Seale
+ */
+
 // bootstrap
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -20,19 +28,19 @@ import pie from './pie';
 
 // controls
 import controls from './controls';
+import slider from './slider';
 import doc from './doc';
 
 
 // data management
 import store from './store';
 import {
-  HOMICIDES, EXPORTS, FACTORS, GDP_PER_CAPITA,
+  FACTORS,
 } from './constants';
 
 /**
  * Callback functions
  */
-
 function handleFactorUpdate(index) {
   return (key) => {
     store[`setFactor${index}`](key);
@@ -70,10 +78,24 @@ function handleAreaChartUpdates(event) {
   doc.setEndYear(endYear);
   store.setCurrentStartYear(startYear);
   store.setCurrentEndYear(endYear);
+  slider.update(startYear, endYear);
 
   // update all charts dependant on time
   map.updateMap();
   pie.updateChart();
+  [0, 1, 2].forEach(i => scatterplot.updateChart(i));
+}
+
+function handleSliderUpdates([startYear, endYear]) {
+  doc.setStartYear(startYear);
+  doc.setEndYear(endYear);
+  store.setCurrentStartYear(startYear);
+  store.setCurrentEndYear(endYear);
+
+  // update all charts dependant on time
+  map.updateMap();
+  pie.updateChart();
+  area.updateChart();
   [0, 1, 2].forEach(i => scatterplot.updateChart(i));
 }
 
@@ -115,6 +137,9 @@ controls.FACTOR_CONTROL_IDS.forEach((id, index) => {
 
 controls.registerOnUpdateEventHandlers(controls.COUNTRY_SELECT_ID, handleCountryUpdate);
 controls.registerOnUpdateEventHandlers(controls.MEASURE_SELECT_ID, handleMeasureUpdate);
+
+// slider
+slider.registerOnUpdateHandlers(handleSliderUpdates);
 
 // listen to map clicks
 map.registerOnClickHandler(handleCountryUpdate);

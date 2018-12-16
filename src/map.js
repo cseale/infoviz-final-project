@@ -1,8 +1,14 @@
+/**
+ * File for generating the map for the vis
+ * author: Colm Seale
+ */
+
 import echarts from 'echarts';
 import _ from 'lodash';
 import store from './store';
 import { COLORS } from './constants';
 
+// register world map with echarts
 const worldMap = require('echarts/map/json/world.json');
 
 echarts.registerMap('world', worldMap);
@@ -12,7 +18,7 @@ let min = Infinity;
 
 const onClickHanders = [];
 
-
+// set options for the viz
 const option = {
   backgroundColor: '#fff',
   tooltip: {
@@ -40,10 +46,12 @@ const option = {
       zoom: 5,
       center: [7.934967, 50.774546],
       itemStyle: {
-        opacity: 1,
+        areaColor: {
+          opacity: 1,
+        },
         emphasis: {
           areaColor: null,
-          opacity: 0.8,
+          opacity: 1,
           label: {
             show: true,
             fontSize: 13,
@@ -62,6 +70,7 @@ const myChart = echarts.init(document.getElementById('map'));
 // use configuration item and data specified to show chart
 myChart.setOption(option);
 
+// trigger click handlers for map click events
 myChart.on('click', (data) => {
   onClickHanders.forEach(handler => handler(data.data.countryId));
 });
@@ -81,6 +90,8 @@ function defineMaxAndMins(mapData) {
   max = tempMax;
 }
 
+
+// some country names require formatting to work with the map
 function formatCountryName(name) {
   const countryMapping = {
     'United States of America': 'United States',
@@ -95,6 +106,10 @@ function formatCountryName(name) {
   return result.trim();
 }
 
+/**
+ * Transforming the data into the required shape for the map
+ * @param {*} data
+ */
 function formatDataForMap(data) {
   const countries = store.getCountries()
     .filter(c => c.countryId !== 'TOT' && !c.countryName.includes('AGG') && !c.countryName.includes('OTH'));
@@ -137,8 +152,11 @@ function renderMap(data) {
 }
 
 function updateMap() {
+  // filter and format
   const mapData = formatDataForMap(filterMapData(store.getData()));
+  // set max and min
   defineMaxAndMins(mapData);
+  // do the damn thing.
   renderMap(mapData);
 }
 

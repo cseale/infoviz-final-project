@@ -3,7 +3,7 @@ import echarts from 'echarts';
 import _ from 'lodash';
 
 import store from './store';
-// import { COLORS } from './constants';
+import { COLORS } from './constants';
 
 const option = {
   grid: {
@@ -12,12 +12,7 @@ const option = {
     right: 60,
     bottom: 60,
   },
-  // visualMap: {
-  //   show: false,
-  //   inRange: {
-  //     color: COLORS[store.getFlowType()],
-  //   },
-  // },
+  color: COLORS.categories,
   legend: {
     data: [],
   },
@@ -128,6 +123,18 @@ function mapDataToSeries(data) {
     }),
   }));
 
+
+  const negativeCountrySeries = _.cloneDeep(countrySeries).map((country) => {
+    country.data = country.data.map(d => (d < 0 ? d : null));
+    country.stack = 'Country';
+    return country;
+  });
+
+  const positiveCountrySeries = _.cloneDeep(countrySeries).map((country) => {
+    country.data = country.data.map(d => (d > 0 ? d : null));
+    return country;
+  });
+
   const unknownSeries = [
     {
       name: 'Unknown',
@@ -143,7 +150,7 @@ function mapDataToSeries(data) {
   ];
   reportingCountryKeys.push('Unknown');
 
-  return [unknownSeries.concat(countrySeries), reportingCountryKeys];
+  return [unknownSeries.concat(negativeCountrySeries, positiveCountrySeries), reportingCountryKeys];
 }
 
 function extractMinAndMaxYear(data) {

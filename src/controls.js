@@ -1,3 +1,8 @@
+/**
+ * File for generating the different controls
+ * author: Colm Seale
+ */
+
 import $ from 'jquery';
 import 'bootstrap-select';
 import 'bootstrap-select/dist/css/bootstrap-select.css';

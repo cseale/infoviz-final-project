@@ -1,3 +1,8 @@
+/**
+ * File declaring (most) of the constants we use throughout the application
+ * author: Colm Seale
+ */
+
 // eslint-disable-next-line import/prefer-default-export
 export const OUTFLOW = 'outflow';
 export const INFLOW = 'inflow';
@@ -43,8 +48,29 @@ export const FACTORS = [
 
 const DIVERGING_THEME = ['rgb(103,0,31)', 'rgb(178,24,43)', 'rgb(214,96,77)', 'rgb(244,165,130)', 'rgb(253,219,199)', 'rgb(247,247,247)', 'rgb(209,229,240)', 'rgb(146,197,222)', 'rgb(67,147,195)', 'rgb(33,102,172)', 'rgb(5,48,97)'];
 
+const CATEGORICAL_THEME = ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)', 'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)', 'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)', 'rgb(255,255,153)', 'rgb(177,89,40)'];
+
+const PIE_CHART_INNER = [
+  '#004f7c',
+  '#aa4b00',
+  '#CC79A7',
+];
+
+const PIE_CHART_OUTER = [
+  '#0072B2',
+  '#56B4E9',
+  '#009E73',
+  '#F0E442',
+  '#E69F00',
+  '#D55E00',
+  '#CC79A7',
+];
+
 export const COLORS = {
   outflow: DIVERGING_THEME.slice(5),
   inflow: DIVERGING_THEME.slice(0, 5).reverse(),
   netflow: DIVERGING_THEME,
+  categories: CATEGORICAL_THEME,
+  pieInner: PIE_CHART_INNER,
+  pieOuter: PIE_CHART_OUTER,
 };

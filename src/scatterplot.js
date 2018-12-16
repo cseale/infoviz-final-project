@@ -1,3 +1,8 @@
+/**
+ * File for generating the scatterplots for the vis
+ * author: Colm Seale
+ */
+
 import echarts from 'echarts';
 import _ from 'lodash';
 
@@ -59,6 +64,8 @@ function render(index) {
     store.getCountryCode());
 
 
+  // It shapes the data for the scatterplot.
+  // You're on your own trying to understand it though.
   const mappedData = data
     .filter(d => _.isNumber(d.associations[key]) && d.associations[key] > 0)
     .map(d => ({

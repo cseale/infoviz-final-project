@@ -1,6 +1,12 @@
+/**
+ * File for generating the pie-in-a-doughtnut for the vis
+ * author: Colm Seale
+ */
+
 import echarts from 'echarts';
 import _ from 'lodash';
 import store from './store';
+import { COLORS } from './constants';
 
 const option = {
   tooltip: {
@@ -12,8 +18,11 @@ const option = {
     x: 'left',
     data: ['Male', 'Female', 'Unknown'],
   },
+
   series: [
+    // define the pie
     {
+      color: COLORS.pieInner,
       name: 'Gender Breakdown',
       type: 'pie',
       radius: ['0%', '30%'],
@@ -36,16 +45,16 @@ const option = {
         },
       },
     },
+    // define the doughnut
     {
+      color: COLORS.pieOuter,
       name: 'Citizenship',
       type: 'pie',
       radius: ['40%', '55%'],
       label: {
+        fontSize: 14,
         normal: {
-          backgroundColor: '#eee',
-          borderColor: '#aaa',
-          borderWidth: 1,
-          borderRadius: 4,
+          fontSize: 15,
         },
       },
     },
@@ -69,7 +78,20 @@ function filterData(data, countryId) {
       && Number(d.year) >= store.getCurrentStartYear());
 }
 
+/**
+ * Aggregates the totals for males, females and their breakdown in terms
+ * of citizenship.
+ * @param {} data
+ */
 function calculateTotals(data) {
+  // If you are a TA and reading this, I was having a really bad day when I wrote
+  // this next little function. It's not you, it's me.
+
+  // Sorry I'm not sorry >:D
+  function fixshittynumbers(d, type) {
+    return Math.abs(_.get(d, type, 0));
+  }
+
   let maleTotal = 0;
   let femaleTotal = 0;
   let totalTotal = 0;
@@ -78,15 +100,16 @@ function calculateTotals(data) {
   let citizenMale = 0;
   let foreignerMale = 0;
 
+  // ADD ALL THE THINGS
   data.forEach((d) => {
-    maleTotal += _.get(d, `${store.getFlowType()}.male`, 0);
-    femaleTotal += _.get(d, `${store.getFlowType()}.female`, 0);
-    totalTotal += _.get(d, `${store.getFlowType()}.total`, 0);
+    maleTotal += fixshittynumbers(d, `${store.getFlowType()}.male`, 0);
+    femaleTotal += fixshittynumbers(d, `${store.getFlowType()}.female`, 0);
+    totalTotal += fixshittynumbers(d, `${store.getFlowType()}.total`, 0);
 
-    citizenFemale += _.get(d, `${store.getFlowType()}.citizens.male`, 0);
-    foreignerFemale += _.get(d, `${store.getFlowType()}.citizens.female`, 0);
-    citizenMale += _.get(d, `${store.getFlowType()}.foreigners.male`, 0);
-    foreignerMale += _.get(d, `${store.getFlowType()}.foreigners.female`, 0);
+    citizenFemale += fixshittynumbers(d, `${store.getFlowType()}.citizens.male`, 0);
+    foreignerFemale += fixshittynumbers(d, `${store.getFlowType()}.citizens.female`, 0);
+    citizenMale += fixshittynumbers(d, `${store.getFlowType()}.foreigners.male`, 0);
+    foreignerMale += fixshittynumbers(d, `${store.getFlowType()}.foreigners.female`, 0);
   });
   const unknownTotal = totalTotal - maleTotal - femaleTotal;
   const unknownFemale = femaleTotal - citizenFemale - foreignerFemale;
@@ -111,18 +134,27 @@ function calculateTotals(data) {
 }
 
 function render() {
-  const data = filterData(store.getData(), store.getCountryCode());
+  if (store.getCountryCode() === '') {
+    return;
+  }
+
+  const data = filterData(store.getSelectedCountryData(), store.getCountryCode());
   const [totals, citizens] = calculateTotals(data);
+
   myChart.setOption({
     series: [
       {
+        // the pie
         data: totals,
       },
       {
+        // the doughnut
         data: citizens,
       },
     ],
   });
+
+  // I'm getting hungry writing these comments.
 }
 
 function updateChart() {
