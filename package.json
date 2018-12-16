@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run start-front && npm run start-back",
     "setup": "node ./setup",
-    "start-front": "pm2 start ./node_modules/http-server/bin/http-server --name frontend -- ./dist --proxy=http://localhost:3000",
+    "start-front": "pm2 start ./node_modules/http-server/bin/http-server --name frontend -- ./dist --proxy=http://localhost:3000 -p 80",
     "start-back": "pm2 start ./backend-src --name backend",
     "restart": "pm2 restart frontend backend",
     "stop": "pm2 stop frontend backend",
