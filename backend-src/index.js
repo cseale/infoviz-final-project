@@ -62,13 +62,27 @@ app.get('/countryStats', (req, res, next) => {
   res.set('Cache-Control', 'public, max-age=31557600'); // one year
   let { startYear, endYear, isoCode, associations, reportingCountry } = req.query;
 
+  let should;
   if (associations) {
     if (!Array.isArray(associations)) {
       associations = [associations];
     }
 
-    associations = new Set(associations);
+    should = {
+      'nested': {
+        'path': 'associations',
+        'query': {
+          'terms': {
+            'associations.name': associations
+          }
+        },
+        'inner_hits': {
+          'size': associations.length
+        }
+      }
+    };
   }
+
   let filter = [];
   if (startYear || endYear) {
     filter.push({
@@ -96,19 +110,22 @@ app.get('/countryStats', (req, res, next) => {
   }
 
   let query;
-  if (filter.length) {
+  let _sourceExclude = [];
+  if (filter.length || should) {
     query = {
       'bool': {
-        filter
+        filter,
+        should
       }
     };
   }
   let ret = [];
-  let _sourceExclude;
   if (!reportingCountry) {
-    _sourceExclude = "reportingCountry";
+    _sourceExclude.push('reportingCountry');
   }
-
+  if (should) {
+    _sourceExclude.push('associations');
+  }
 
   client.search({
     index: 'migration_total',
@@ -116,12 +133,6 @@ app.get('/countryStats', (req, res, next) => {
     scroll: '1m',
     _sourceExclude,
     body: {
-      // 'sort': {
-      //   'year': {
-      //     'contryId': 'asc',
-      //     'order': 'desc'
-      //   }
-      // },
       'size': 10000,
       query
     }
@@ -138,13 +149,20 @@ app.get('/countryStats', (req, res, next) => {
         let s = e._source;
 
         let res = {};
-        if (s.associations.length) {
-          s.associations.forEach(e => {
-              if (!associations || associations.has(e.name)) {
+        if (associations) {
+          if (e.inner_hits.associations.hits.total) {
+            e.inner_hits.associations.hits.hits.forEach(e => {
+                res[e._source.name] = e._source.value;
+              }
+            );
+          }
+        } else {
+          if (s.associations.length) {
+            s.associations.forEach(e => {
                 res[e.name] = e.value;
               }
-            }
-          );
+            );
+          }
         }
 
         s.associations = res;
