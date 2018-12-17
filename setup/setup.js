@@ -9,9 +9,6 @@ let tasks = [];
 
 const { byName } = require('../res/codes.js');
 
-// todo make sure we don't have missing totals based on reporting country
-
-
 /**
  *
  * @type {Client}
