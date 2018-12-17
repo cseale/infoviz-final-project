@@ -2,47 +2,24 @@
 
 process.chdir(__dirname); // make sure we are running in the current directory
 
-// start the main index
-// require("./setup");
+const RUN_IN_PIPE = false;
+
+if (RUN_IN_PIPE) {
+  // start the main index
+  require('./setup');
+}
 
 const elasticsearch = require('elasticsearch');
 const csv = require('csvtojson');
 let tasks = [];
-let nameToCode = require('../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/nameToCode');
 
-const { byCC, byName, byId3 } = require('../res/codes.js');
-
-function loadFromObj(obj, property, transform) {
-  return function (e) {
-    let ret = obj[e];
-    if (!ret) {
-      // console.error('Undefined value for ' + e);
-      return;
-    }
-    ret = property ? ret[property] : ret;
-    if (transform) {
-      ret = transform(ret);
-    }
-
-    return ret;
-  };
-}
-
-function loadFromDoubleObj(obj1, obj2, property) {
-  return function (e) {
-    let ret = obj1[obj2[e]];
-    if (!ret) {
-      // console.error('Undefined value for ' + e);
-      return;
-    }
-    return property ? ret[property] : ret;
-  };
-}
-
-function trim(s) {
-  return s.trim();
-}
-
+/**
+ * Row style csvs.
+ * @property {function} id The function that calculates the id
+ * @property {function} descriptor.name The function that calculates the name
+ * @property {function} descriptor.value The function that calculates the value
+ * @property {string} path File path
+ */
 const rowLoader = [
   {
     id: function (json) {
@@ -61,9 +38,17 @@ const rowLoader = [
 
 ];
 
+/**
+ * Row style csvs.
+ * @property {function} id The function that calculates the id
+ * @property {function} descriptor.name The function that calculates the name
+ * @property {function} incr The function that calculates the next column based on the current index
+ * @property {string} path File path
+ * @property {int} start The column to start with
+ */
 const columnLoader = [
   {
-    id: function (json,  index) {
+    id: function (json, index) {
       return json['Country Code'] + index;
     },
     descriptor: {
@@ -129,11 +114,16 @@ const client = new elasticsearch.Client({
 function load() {
   console.log('LOADER CALLED');
   for (let l of rowLoader) {
-    let { descriptor, path, id, _index } = l;
+    let { descriptor, path, id } = l;
 
+    // load the csv file and proces it row by row so we don't run out of RAM
     csv()
       .fromFile(path)
       .subscribe((json) => {
+        // triggered on each row
+        // push the data in the tasks queue
+
+        // calculate the destination
         tasks.push({
           update: {
             _index: 'migration_total',
@@ -141,15 +131,22 @@ function load() {
             _id: id(json)
           }
         });
-        tasks.push({
 
+        // calculate the values
+        tasks.push({
+          // because of the async nature of these tasks we have to run atomically on Elasticsearch
           'script': {
+            // assure we have at least a empty array
             'source': `
-                      if (ctx._source.associations == null)
-                  ctx._source.associations = [];
+                  if (ctx._source.associations == null)
+                    ctx._source.associations = [];
 
                   ctx._source.associations.add(params.associations);
                   `,
+            // this gets passed in the script
+            // we can not format the source with them because ES uses caches for compilation and
+            // has a limited number of compilations per minute. This was all of them require a single
+            // compilation
             'params': {
               'associations':
                 {
@@ -184,14 +181,20 @@ function load() {
             }
           });
           tasks.push({
+            // because of the async nature of these tasks we have to run atomically on Elasticsearch
             'script': {
+              // assure we have at least a empty array
               'source': `
-                      if (ctx._source.associations == null)
-                  ctx._source.associations = [];
+                  if (ctx._source.associations == null)
+                    ctx._source.associations = [];
 
                   ctx._source.associations.add(params.associations);
                   `,
               'params': {
+                // this gets passed in the script
+                // we can not format the source with them because ES uses caches for compilation and
+                // has a limited number of compilations per minute. This was all of them require a single
+                // compilation
                 'associations':
                   {
                     'name': descriptor.name(json),
@@ -206,15 +209,18 @@ function load() {
       });
   }
 
+  // start the worker pool
   startWorkers();
 }
 
+// used to determine when no now tasks have occurred
 let times = 0;
 
-// startWorkers();
-
+// start worker pool
 function startWorkers() {
   times = 0;
+
+  // let a little processing time before the workers start
   setTimeout(() => {
     for (var i = 0; i < 10; i++) {
       bulkThread();
@@ -223,21 +229,29 @@ function startWorkers() {
 }
 
 
+/**
+ * Worker handler
+ */
 function bulkThread() {
+  // run in bulks of 300
   let body = tasks.splice(0, 300);
   if (body.length) {
+    // if we have things to do
+
+    // reset the processing timer
     times = 0;
-    // console.log(require('util')
-    //   .inspect(body, {
-    //     depth: null,
-    //     colors: true
-    //   }));
+
+    // call es
     client.bulk({ body }, function (err, response) {
       if (err) {
+        // this should never happen
         console.error(err);
       }
 
       if (response.errors) {
+        // this will happen from time to time because our associations have dates that are not
+        // present in our migration data
+        // log it for assurance purposes
         console.log(JSON.stringify(body));
         console.log(JSON.stringify(response));
         console.log(require('util')
@@ -252,11 +266,19 @@ function bulkThread() {
 
     });
   } else {
-    console.log('Nope');
+    console.log('Done');
+    // if we are done try to wait for new tasks foe a reasonable amount of times
     if (times++ < 100) {
       setTimeout(bulkThread, 1000);
     }
   }
 }
 
-process.once('beforeExit', load);
+if (RUN_IN_PIPE) {
+  // if used in conjunction with the other scripts wait for them to finish first
+  // beforeExit is triggered when the even loop is empty
+  process.once('beforeExit', load);
+} else {
+  load();
+}
+

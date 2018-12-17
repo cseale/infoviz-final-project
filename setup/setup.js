@@ -6,9 +6,10 @@ process.chdir(__dirname); // make sure we are running in the current directory
 const elasticsearch = require('elasticsearch');
 const csv = require('csvtojson');
 let tasks = [];
-let nameToCode = require('../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/nameToCode');
 
-const { byCC, byName, byId3 } = require('../res/codes.js');
+const { byName } = require('../res/codes.js');
+
+// todo make sure we don't have missing totals based on reporting country
 
 
 /**
@@ -19,10 +20,24 @@ const client = new elasticsearch.Client({
   host: 'localhost:9200'
 });
 
+/**
+ * This contains the ES mapping.
+ *
+ * The basic properties we used are:
+ *  keyword -> used to index the full string for querying
+ *  float/integer -> query for lower than equals, etc
+ *  properties -> index as object
+ *  properties.enabled = false -> disable indexing of the properties
+ *  properties.nested -> index as almost separate documents so we can query on the properties independently
+ *
+ * For in detail information regarding each type on option please
+ * consult the official documentation https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html
+ */
 client.indices.create({
     index: 'migration_total',
     body: {
       'settings': {
+        // we unfortunately don't own a massive server cloud to afford multiple shards :)
         'number_of_shards': 1
       },
       'mappings': {
@@ -49,6 +64,8 @@ client.indices.create({
               'type': 'keyword'
             },
             'reportingCountry': {
+              // This property is way too dynamic and big for Elasticsearch to handle in a single
+              // document. Disable all indexing on it
               'enabled': false,
               'properties': {}
             },
@@ -271,8 +288,11 @@ client.indices.create({
     }
   }, (err, res) => {
     if (err) {
+      // if erred crash the process, we can not recover from this
       throw err;
     }
+
+    // loop over the CSVs
     for (let p of [
       {
         path: '../datasets/Bi-Lateral Migration 1945-2011/DEMIG-C2C-migration-flows/DEMIG-C2C-Migration-Outflow.csv',
@@ -292,18 +312,28 @@ client.indices.create({
       }
     ]) {
 
+      // load each CSV and process it line by line so we don't run out of RAM
       csv()
         .fromFile(p.path)
         .subscribe((json) => {
+          // let the fun start :)
+
           let reportingCountryId,
             reportingCountry;
           try {
+            // this stupid csv handler hides the errors...
+            // calculate the metadata
             let countryId = json['Country codes -UN based-'].trim(),
               year = +json['Year'],
+              // this will provide a unique id where we can merge documents
               id = countryId + year,
               data = {};
 
+            // calculate the reporter metadata
             let reportingCountryName = json['Reporting country'];
+
+            // if we own metadata regarding that country
+            // you would be surprised how much trash this filters
             if (byName[reportingCountryName]) {
               reportingCountryId = byName[reportingCountryName].id3;
               reportingCountry = {
@@ -311,20 +341,29 @@ client.indices.create({
                 countryId: reportingCountryId,
                 countryCC: byName[reportingCountryName].cc,
               };
-
             }
 
+            // calculate the value metadata
+            // fortunately we use NodeJs and Painless so this is very easy to write :)
             let cov = json['Coverage -Citizens/Foreigners/Both-'].toLowerCase()
                 .trim(),
               sex = json['Gender'].toLowerCase()
                 .trim();
 
+            // if this is the first document of this id we need to add it to ES
+            // else we need to aggregate the data to the existing document
+
+            // because we don't know if the current document is the first for this id we need
+            // to build both flows and let ES decide which to take or else we will
+            // have big race problems
+
+            // build the data objects
             data[cov] = {};
             let val = +json['Value'];
             data[cov][sex] = val;
-            data[cov].total = val;
-            data.total = val;
             data[sex] = val;
+
+            // use the update rest endpoint with retries to fix version conflict problems
             tasks.push({
               update: {
                 _index: 'migration_total',
@@ -334,6 +373,7 @@ client.indices.create({
               }
             });
 
+            // calculate the document
             let doc = {
               year,
               countryId,
@@ -343,6 +383,12 @@ client.indices.create({
             };
 
             let d = {
+              // this was fun to write, apparently Painless(the script language) is a misleading name :)
+              // it was very painful to write...
+              // unfortunately I can't add comments inside for performance reasons
+              // basically what this does is make sure we have an initialized structure and we add
+              // the current value in all the corresponding places(inflow.foreigners.male gets added
+              // to the segmented data too)
               'script': {
                 'source': `
                 Map container = ctx._source;
@@ -357,25 +403,10 @@ client.indices.create({
                               
                   container[params.name][params.cov][params.sex] += params.param1;
                           
-                          
-                  if (container[params.name].total == null)
-                      container[params.name].total = 0;
-                      
-                  container[params.name].total += params.param1;
-                          
-                  if (params.sex != 'total') {
-                    if (container[params.name][params.sex] == null)
-                        container[params.name][params.sex] = 0;
-                    
-                    container[params.name][params.sex] += params.param1;
-                    
-                    
-                    if (container[params.name][params.cov].total == null)
-                        container[params.name][params.cov].total = 0;
-                    
-                    container[params.name][params.cov].total += params.param1;
-
-                  }
+                  if (container[params.name][params.sex] == null)
+                      container[params.name][params.sex] = 0;
+                  
+                  container[params.name][params.sex] += params.param1;
 
                   if (params['reportingCountry'] != null && params['reportingCountryId'] != null ) {
                     if (container['reportingCountry'] == null)
@@ -397,24 +428,10 @@ client.indices.create({
                                 
                     container[params.name][params.cov][params.sex] += params.param1;
                             
-                            
-                    if (container[params.name].total == null)
-                        container[params.name].total = 0;
-                        
-                    container[params.name].total += params.param1;
-                            
-                    if (params.sex != 'total') {
-                      if (container[params.name][params.sex] == null)
-                          container[params.name][params.sex] = 0;
-                      
-                      container[params.name][params.sex] += params.param1;
-                      
-                      
-                      if (container[params.name][params.cov].total == null)
-                          container[params.name][params.cov].total = 0;
-                      
-                      container[params.name][params.cov].total += params.param1;
-                  }
+                    if (container[params.name][params.sex] == null)
+                        container[params.name][params.sex] = 0;
+                    
+                    container[params.name][params.sex] += params.param1;
                   }`,
                 'lang': 'painless',
                 'params': {
@@ -428,6 +445,7 @@ client.indices.create({
                 }
               },
               upsert: {
+                // this gets called if the document is missing
                 year,
                 countryId,
                 countryName: json['COUNTRIES'].trim(),
@@ -437,8 +455,11 @@ client.indices.create({
             };
             d.upsert[p.name] = data;
             if (reportingCountry && reportingCountryId) {
+              // if we have reportingCountry data add this too
               d.upsert.reportingCountry = {};
               d.upsert.reportingCountry[reportingCountryId] = {};
+
+              // clone our data object because we have a small change to do
               Object.assign(d.upsert.reportingCountry[reportingCountryId], reportingCountry);
               d.upsert.reportingCountry[reportingCountryId][p.name] = data;
             }
@@ -446,6 +467,7 @@ client.indices.create({
               d
             );
           } catch (e) {
+            // actually print them
             console.error(e);
           }
         });
@@ -455,6 +477,7 @@ client.indices.create({
 let times = 0;
 startWorkers();
 
+// worker pool
 function startWorkers() {
   times = 0;
   setTimeout(() => {
@@ -464,6 +487,7 @@ function startWorkers() {
   }, 2000);
 }
 
+// worker handler
 function bulkThread() {
   let body = tasks.splice(0, 300);
   if (body.length) {
