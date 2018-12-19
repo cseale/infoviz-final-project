@@ -3,7 +3,7 @@ Data Vizualisation 2018 InfoViz Final Project
 # Set up
 1. install Elasticsearch https://www.elastic.co/downloads/elasticsearch
 1. start Elasticsearch
-1. `npm run install` - installs dependencies
+1. `npm install` - installs dependencies
 1. `npm run build` - build frontend
 1. `npm run load` - dumps the data in ES
 1. `npm run start` - starts the frontend and backend servers
