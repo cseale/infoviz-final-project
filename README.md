@@ -18,5 +18,6 @@ To restart the server run `npm run reload`.
 * `nohup ./ngrok http 8080 &`
 * `ssh -L 4040:localhost:4040 mihai_b_voicescu@35.204.242.56`
 
-# Screencast
-Screencast available [here](https://www.dropbox.com/s/5txknfkv54fp1ww/Final_one.mov?dl=0).
+# Deliverables
+* Screencast(`Screencast.mov`) also available [here](https://www.dropbox.com/s/5txknfkv54fp1ww/Final_one.mov?dl=0).
+* Report(`Data_Visualization_InfoVis.pdf`)
