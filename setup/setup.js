@@ -509,7 +509,7 @@ function bulkThread() {
 
     });
   } else {
-    console.log('Nope');
+    console.log('Done');
     if (times++ < 100) {
       setTimeout(bulkThread, 1000);
     }

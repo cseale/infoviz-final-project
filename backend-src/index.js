@@ -24,7 +24,7 @@ app.use(compression());
 
 
 /**
- * Used for genting a complete list of countries with their id
+ * Used for getting a complete list of countries with their id
  */
 app.get('/countries', (req, res, next) => {
   // tell the browser to cache the request
@@ -139,7 +139,7 @@ app.get('/countryStats', (req, res, next) => {
   let _sourceExclude = [];
 
   if (!filter.length)
-  // if no actuall filters were used set it to undefined because undefined fields do not get serialized
+  // if no actual filters were used set it to undefined because undefined fields do not get serialized
   {
     filter = undefined;
   }
